@@ -180,7 +180,6 @@ function showMainScreen() {
     mainScreen.classList.remove('hidden');
     loadInitialData();
 }ialData();
-}
 
 // ログイン画面表示
 function showLoginScreen() {
