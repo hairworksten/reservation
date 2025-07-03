@@ -531,7 +531,6 @@ async function handleSendMail() {
 }
 
 // パスワード変更
-// 改善されたパスワード変更関数
 async function handlePasswordChange() {
     const oldPassword = oldPasswordInput.value;
     const newPassword = newPasswordInput.value;
@@ -554,8 +553,6 @@ async function handlePasswordChange() {
     }
 
     try {
-        console.log('🔧 パスワード変更を開始します...');
-        
         const response = await fetch(`${API_BASE_URL}/change-password`, {
             method: 'POST',
             headers: {
@@ -569,7 +566,6 @@ async function handlePasswordChange() {
         });
 
         const data = await response.json();
-        console.log('🔧 Server response:', data);
 
         if (data.success) {
             alert('パスワードを変更しました。');
@@ -578,22 +574,23 @@ async function handlePasswordChange() {
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            // エラーの詳細を表示
-            let errorMessage = `パスワード変更に失敗しました。\n\n理由: ${data.error}`;
+            // ユーザーフレンドリーなエラーメッセージ
+            let errorMessage = 'パスワード変更に失敗しました。';
             
-            if (data.debug) {
-                console.log('🔍 Debug information:', data.debug);
-                errorMessage += '\n\nコンソール（F12）でデバッグ情報を確認してください。';
+            if (data.error && data.error.includes('incorrect')) {
+                errorMessage = '現在のパスワードが正しくありません。';
+            } else if (data.error && data.error.includes('not found')) {
+                errorMessage = 'ユーザーが見つかりません。再ログインしてください。';
+            } else if (data.error && data.error.includes('required')) {
+                errorMessage = '入力項目に不備があります。すべての項目を正しく入力してください。';
             }
             
             alert(errorMessage);
         }
     } catch (error) {
-        console.error('❌ Network error:', error);
         alert('ネットワークエラーが発生しました。インターネット接続を確認してください。');
     }
 }
-
 // 定休日読み込み
 async function loadHolidays() {
     try {
