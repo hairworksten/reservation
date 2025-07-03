@@ -155,7 +155,7 @@ async function updatePopulation(change) {
     } catch (error) {
         console.error('Error updating population:', error);
     }
-}ニューデータを保存するグローバル変数
+}
 let currentTemplates = {}; // テンプレートデータを保存
 
 // DOM要素の取得
