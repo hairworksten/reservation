@@ -531,7 +531,7 @@ async function handleSendMail() {
 }
 
 // パスワード変更
-// 改良されたパスワード変更
+// デバッグ強化版パスワード変更
 async function handlePasswordChange() {
     const oldPassword = oldPasswordInput.value;
     const newPassword = newPasswordInput.value;
@@ -547,7 +547,24 @@ async function handlePasswordChange() {
         return;
     }
 
+    // まずデバッグ情報を取得
     try {
+        console.log('🔍 Getting debug info...');
+        const debugResponse = await fetch(`${API_BASE_URL}/debug-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentUser,
+                old_password: oldPassword
+            })
+        });
+
+        const debugData = await debugResponse.json();
+        console.log('🔍 Debug info:', debugData);
+
+        // 実際のパスワード変更を試行
         const response = await fetch(`${API_BASE_URL}/change-password`, {
             method: 'POST',
             headers: {
@@ -561,6 +578,7 @@ async function handlePasswordChange() {
         });
 
         const data = await response.json();
+        console.log('🔍 Password change result:', data);
 
         if (data.success) {
             alert('パスワードを変更しました。');
@@ -568,16 +586,14 @@ async function handlePasswordChange() {
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            // 通常の変更が失敗した場合、緊急変更を提案
-            if (confirm(`通常の変更が失敗しました（${data.error}）。\n緊急変更機能を使用しますか？`)) {
-                handleForcePasswordChange();
-            }
+            alert(`失敗: ${data.error}\n\nデバッグ情報をコンソールで確認してください。`);
         }
     } catch (error) {
-        console.error('Error changing password:', error);
-        alert('パスワード変更エラーが発生しました。');
+        console.error('Error:', error);
+        alert('エラーが発生しました。コンソールを確認してください。');
     }
 }
+
 // 定休日読み込み
 async function loadHolidays() {
     try {
