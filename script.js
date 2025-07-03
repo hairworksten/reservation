@@ -188,6 +188,7 @@ function showLoginScreen() {
     loginScreen.classList.remove('hidden');
     userIdInput.value = '';
     passwordInput.value = '';
+}
     hideError();
 }
 
