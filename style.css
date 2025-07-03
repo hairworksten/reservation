@@ -103,6 +103,15 @@ body {
     background-color: #c82333;
 }
 
+.btn-success {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
 .btn-small {
     padding: 8px 16px;
     font-size: 14px;
@@ -512,6 +521,17 @@ body {
     background-color: rgba(220, 53, 69, 0.1);
     border: 1px solid #dc3545;
     color: #dc3545;
+    display: block;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+}
+
+.error-message.show {
     display: block;
 }
 
