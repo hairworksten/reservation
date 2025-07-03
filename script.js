@@ -732,11 +732,14 @@ async function loadMenus() {
         console.error('Error loading menus:', error);
     }
 }
-
-// メニュー表示
+// 修正されたメニュー表示関数
 function displayMenus(menus) {
     menusListDiv.innerHTML = Object.keys(menus).map(menuName => {
         const menu = menus[menuName];
+        // 改行文字をエスケープして安全にする
+        const safeText = menu.text.replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        const safeName = menuName.replace(/'/g, "\\'");
+        
         return `
             <div class="menu-item">
                 <div class="menu-header">
@@ -746,16 +749,43 @@ function displayMenus(menus) {
                         <span class="menu-fare">${menu.fare || 0}円</span>
                     </div>
                 </div>
-                <p>${menu.text}</p>
+                <p style="white-space: pre-line;">${menu.text}</p>
                 <div class="menu-actions">
-                    <button class="btn btn-secondary btn-small" onclick="editMenu('${menuName}', '${menu.text}', ${menu.worktime}, ${menu.fare || 0})">編集</button>
-                    <button class="btn btn-danger btn-small" onclick="handleDeleteMenu('${menuName}')">削除</button>
+                    <button class="btn btn-secondary btn-small" onclick="editMenuSafe('${safeName}')">編集</button>
+                    <button class="btn btn-danger btn-small" onclick="handleDeleteMenu('${safeName}')">削除</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
+// 安全なメニュー編集関数
+function editMenuSafe(menuName) {
+    // グローバル変数から直接メニューデータを取得
+    const response = fetch(`${API_BASE_URL}/menus`)
+        .then(response => response.json())
+        .then(menus => {
+            const menu = menus[menuName];
+            if (menu) {
+                editMenu(menuName, menu.text, menu.worktime, menu.fare || 0);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading menu for edit:', error);
+            alert('メニューの読み込みに失敗しました。');
+        });
+}
+
+// 既存のeditMenu関数（変更なし）
+function editMenu(name, text, worktime, fare) {
+    menuNameInput.value = name;
+    menuTextInput.value = text;
+    menuWorktimeInput.value = worktime;
+    menuFareInput.value = fare;
+    
+    addMenuBtn.textContent = '更新';
+    addMenuBtn.onclick = () => handleUpdateMenu(name);
+}
 // メニュー追加
 async function handleAddMenu() {
     const name = menuNameInput.value.trim();
@@ -792,17 +822,6 @@ async function handleAddMenu() {
     } catch (error) {
         console.error('Error adding menu:', error);
     }
-}
-
-// メニュー編集
-function editMenu(name, text, worktime, fare) {
-    menuNameInput.value = name;
-    menuTextInput.value = text;
-    menuWorktimeInput.value = worktime;
-    menuFareInput.value = fare;
-    
-    addMenuBtn.textContent = '更新';
-    addMenuBtn.onclick = () => handleUpdateMenu(name);
 }
 
 // メニュー更新
