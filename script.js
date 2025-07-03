@@ -184,11 +184,10 @@ function handleLogout() {
 
 // メイン画面表示
 function showMainScreen() {
-    console.log('Showing main screen...');
     loginScreen.classList.add('hidden');
     mainScreen.classList.remove('hidden');
-    console.log('Calling loadInitialData...');
     loadInitialData();
+}ialData();
 }
 
 // ログイン画面表示
@@ -202,24 +201,11 @@ function showLoginScreen() {
 
 // 初期データ読み込み
 async function loadInitialData() {
-    console.log('Loading initial data...');
-    
-    console.log('Loading population...');
     await loadPopulation();
-    
-    console.log('Loading reservations...');
     await loadReservations();
-    
-    console.log('Loading mail templates...');
     await loadMailTemplates();
-    
-    console.log('Loading holidays...');
     await loadHolidays();
-    
-    console.log('Loading menus...');
     await loadMenus();
-    
-    console.log('Initial data loading complete');
 }
 
 // タブ切り替え
@@ -271,28 +257,18 @@ async function updatePopulation(change) {
 
 // 予約データ読み込み
 async function loadReservations() {
-    console.log('Starting loadReservations...');
     try {
-        console.log('Fetching from:', `${API_BASE_URL}/reservations`);
         const response = await fetch(`${API_BASE_URL}/reservations`);
-        console.log('Response status:', response.status);
-        console.log('Response OK:', response.ok);
-        
         const data = await response.json();
-        
-        // デバッグ用ログ
-        console.log('Raw API response:', data);
         
         // データが配列かどうかチェック
         if (Array.isArray(data)) {
             reservations = data;
-            console.log('Reservations set to:', reservations);
         } else {
             console.error('Reservations data is not an array:', data);
             reservations = [];
         }
         
-        console.log('Calling displayReservations...');
         displayReservations();
     } catch (error) {
         console.error('Error loading reservations:', error);
@@ -301,29 +277,12 @@ async function loadReservations() {
     }
 }
 
-// テスト用関数（コンソールから手動実行可能）
-window.testLoadReservations = function() {
-    console.log('Manual test: loading reservations...');
-    loadReservations();
-};
-
 // 予約表示
 function displayReservations() {
     const today = new Date().toISOString().split('T')[0];
     
-    // デバッグ用ログ
-    console.log('Today date:', today);
-    console.log('All reservations:', reservations);
-    console.log('Reservations for today:', reservations.filter(r => r.date === today));
-    
-    // 今日の予約（今日の日付かつstates: 0のみ）
-    const todayReservations = reservations.filter(r => {
-        console.log(`Checking reservation: date=${r.date}, states=${r.states}, today=${today}`);
-        return r.date === today && r.states === 0;
-    }).sort((a, b) => a.Time.localeCompare(b.Time));
-
-    // これからの予約（今日以降でstates: 0のみ）
-    const upcomingReservations = reservations.filter(r => 
+    // 今日の予約（今日以降でstates: 0のみ）- これからの予約と同じ
+    const todayReservations = reservations.filter(r => 
         r.date >= today && r.states === 0
     ).sort((a, b) => {
         if (a.date === b.date) {
@@ -331,6 +290,9 @@ function displayReservations() {
         }
         return a.date.localeCompare(b.date);
     });
+
+    // これからの予約は空にする
+    const upcomingReservations = [];
 
     // 予約履歴（全て）
     const historyReservations = [...reservations].sort((a, b) => {
@@ -340,11 +302,6 @@ function displayReservations() {
         return b.date.localeCompare(a.date);
     });
 
-    // デバッグ用ログ
-    console.log('Today reservations count:', todayReservations.length);
-    console.log('Upcoming reservations count:', upcomingReservations.length);
-    console.log('History reservations count:', historyReservations.length);
-
     todayReservationsDiv.innerHTML = renderReservationsList(todayReservations, 'today');
     upcomingReservationsDiv.innerHTML = renderReservationsList(upcomingReservations, 'upcoming');
     reservationHistoryDiv.innerHTML = renderReservationsList(historyReservations, 'history');
@@ -352,8 +309,6 @@ function displayReservations() {
 
 // 予約リストのHTML生成
 function renderReservationsList(reservationsList, type) {
-    console.log(`Rendering ${type} reservations:`, reservationsList);
-    
     if (reservationsList.length === 0) {
         return '<p>予約がありません。</p>';
     }
@@ -364,12 +319,14 @@ function renderReservationsList(reservationsList, type) {
         
         let actionsHTML = '';
         if (type === 'today') {
+            // 今日の予約に来店ボタンを追加
             actionsHTML = `
                 <button class="btn btn-success btn-small" onclick="handleVisit('${reservation.id}')">来店</button>
                 <button class="btn btn-danger btn-small" onclick="handleCancel('${reservation.id}')">キャンセル</button>
                 <button class="btn btn-secondary btn-small" onclick="openMailModal('${reservation.mail}')">メール送信</button>
             `;
         } else if (type === 'upcoming') {
+            // これからの予約（現在は空だが、念のため残す）
             actionsHTML = `
                 <button class="btn btn-danger btn-small" onclick="handleCancel('${reservation.id}')">キャンセル</button>
                 <button class="btn btn-secondary btn-small" onclick="openMailModal('${reservation.mail}')">メール送信</button>
