@@ -1,4 +1,4 @@
-// APIベースURL - 本番環境ではCloud RunのURLに変更してください
+// APIベースURL
 const API_BASE_URL = 'https://reservation-api-36382648212.asia-northeast1.run.app/api';
 
 // グローバル変数
@@ -45,8 +45,15 @@ const holidayMessage = document.getElementById('holiday-message');
 const menuNameInput = document.getElementById('menu-name');
 const menuTextInput = document.getElementById('menu-text');
 const menuWorktimeInput = document.getElementById('menu-worktime');
+const menuFareInput = document.getElementById('menu-fare');
 const addMenuBtn = document.getElementById('add-menu-btn');
 const menusListDiv = document.getElementById('menus-list');
+
+// テンプレート関連
+const templateTitleInput = document.getElementById('template-title');
+const templateMainInput = document.getElementById('template-main');
+const addTemplateBtn = document.getElementById('add-template-btn');
+const templatesListDiv = document.getElementById('templates-list');
 
 // モーダル関連
 const mailModal = document.getElementById('mail-modal');
@@ -100,6 +107,9 @@ function initializeEventListeners() {
 
     // メニュー追加
     addMenuBtn.addEventListener('click', handleAddMenu);
+
+    // テンプレート追加
+    addTemplateBtn.addEventListener('click', handleAddTemplate);
 
     // モーダル関連
     cancelMailBtn.addEventListener('click', closeMailModal);
@@ -162,86 +172,6 @@ async function handleLogin() {
             showError('ログインに失敗しました。IDまたはパスワードが間違っています。');
         }
     } catch (error) {
-        console.error('Login error:', error);
-        showError('ログインエラーが発生しました。');
-    }
-}
-
-// ログアウト処理
-function handleLogout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    showLoginScreen();
-}
-
-// メイン画面表示
-function showMainScreen() {
-    loginScreen.classList.add('hidden');
-    mainScreen.classList.remove('hidden');
-    loadInitialData();
-}ialData();
-
-// ログイン画面表示
-function showLoginScreen() {
-    mainScreen.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-    userIdInput.value = '';
-    passwordInput.value = '';
-}
-    hideError();
-
-// 初期データ読み込み
-async function loadInitialData() {
-    await loadPopulation();
-    await loadReservations();
-    await loadMailTemplates();
-    await loadHolidays();
-    await loadMenus();
-}
-
-// タブ切り替え
-function switchTab(tabName) {
-    tabBtns.forEach(btn => btn.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
-    const activeContent = document.getElementById(`${tabName}-tab`);
-
-    if (activeTab && activeContent) {
-        activeTab.classList.add('active');
-        activeContent.classList.add('active');
-    }
-}
-
-// 人数データ読み込み
-async function loadPopulation() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/population`);
-        const data = await response.json();
-        currentPopulationSpan.textContent = data.now || 0;
-    } catch (error) {
-        console.error('Error loading population:', error);
-    }
-}
-
-// 人数更新
-async function updatePopulation(change) {
-    const currentCount = parseInt(currentPopulationSpan.textContent);
-    const newCount = Math.max(0, currentCount + change);
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/population`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ now: newCount })
-        });
-
-        if (response.ok) {
-            currentPopulationSpan.textContent = newCount;
-        }
-    } catch (error) {
         console.error('Error updating population:', error);
     }
 }
@@ -252,11 +182,9 @@ async function loadReservations() {
         const response = await fetch(`${API_BASE_URL}/reservations`);
         const data = await response.json();
         
-        // データが配列かどうかチェック
         if (Array.isArray(data)) {
             reservations = data;
         } else {
-            console.error('Reservations data is not an array:', data);
             reservations = [];
         }
         
@@ -272,7 +200,7 @@ async function loadReservations() {
 function displayReservations() {
     const today = new Date().toISOString().split('T')[0];
     
-    // 予約一覧（来店前）- 今日以降でstates: 0のみ
+    // 予約一覧（来店前）
     const todayReservations = reservations.filter(r => 
         r.date >= today && r.states === 0
     ).sort((a, b) => {
@@ -306,14 +234,12 @@ function renderReservationsList(reservationsList, type) {
         
         let actionsHTML = '';
         if (type === 'today') {
-            // 予約一覧（来店前）に来店ボタン、キャンセルボタン、メール送信ボタン
             actionsHTML = `
                 <button class="btn btn-success btn-small" onclick="handleVisit('${reservation.id}')">来店</button>
                 <button class="btn btn-danger btn-small" onclick="handleCancel('${reservation.id}')">キャンセル</button>
                 <button class="btn btn-secondary btn-small" onclick="openMailModal('${reservation.mail}')">メール送信</button>
             `;
         } else {
-            // 履歴はメール送信のみ
             actionsHTML = `
                 <button class="btn btn-secondary btn-small" onclick="openMailModal('${reservation.mail}')">メール送信</button>
             `;
@@ -328,7 +254,6 @@ function renderReservationsList(reservationsList, type) {
                 <div class="reservation-info">
                     <div><strong>日付:</strong> ${reservation.date}</div>
                     <div><strong>名前:</strong> ${reservation['Name-f'] || ''} ${reservation['Name-s'] || ''}</div>
-                    <div><strong>フリガナ:</strong> ${reservation['Name-f-f'] || ''} ${reservation['Name-s-f'] || ''}</div>
                     <div><strong>メニュー:</strong> ${reservation.Menu || ''}</div>
                     <div><strong>作業時間:</strong> ${reservation.WorkTime || ''}分</div>
                     <div><strong>メール:</strong> ${reservation.mail || ''}</div>
@@ -406,9 +331,128 @@ async function loadMailTemplates() {
     try {
         const response = await fetch(`${API_BASE_URL}/mail-templates`);
         mailTemplates = await response.json();
+        displayTemplates();
     } catch (error) {
         console.error('Error loading mail templates:', error);
     }
+}
+
+// テンプレート表示
+function displayTemplates() {
+    templatesListDiv.innerHTML = Object.keys(mailTemplates).map(templateName => {
+        const template = mailTemplates[templateName];
+        return `
+            <div class="template-item">
+                <div class="template-header">
+                    <span class="template-title">${templateName}</span>
+                </div>
+                <p><strong>件名:</strong> ${template.title}</p>
+                <p><strong>本文:</strong> ${template.main}</p>
+                <div class="template-actions">
+                    <button class="btn btn-secondary btn-small" onclick="editTemplate('${templateName}', '${template.title}', '${template.main}')">編集</button>
+                    <button class="btn btn-danger btn-small" onclick="handleDeleteTemplate('${templateName}')">削除</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// テンプレート追加
+async function handleAddTemplate() {
+    const title = templateTitleInput.value.trim();
+    const main = templateMainInput.value.trim();
+
+    if (!title || !main) {
+        alert('件名と本文を入力してください。');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/mail-templates`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: title,
+                title: title,
+                main: main
+            })
+        });
+
+        if (response.ok) {
+            templateTitleInput.value = '';
+            templateMainInput.value = '';
+            await loadMailTemplates();
+        }
+    } catch (error) {
+        console.error('Error adding template:', error);
+    }
+}
+
+// テンプレート編集
+function editTemplate(name, title, main) {
+    templateTitleInput.value = title;
+    templateMainInput.value = main;
+    
+    addTemplateBtn.textContent = '更新';
+    addTemplateBtn.onclick = () => handleUpdateTemplate(name);
+}
+
+// テンプレート更新
+async function handleUpdateTemplate(originalName) {
+    const title = templateTitleInput.value.trim();
+    const main = templateMainInput.value.trim();
+
+    if (!title || !main) {
+        alert('件名と本文を入力してください。');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/mail-templates/${encodeURIComponent(originalName)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: title,
+                main: main
+            })
+        });
+
+        if (response.ok) {
+            resetTemplateForm();
+            await loadMailTemplates();
+        }
+    } catch (error) {
+        console.error('Error updating template:', error);
+    }
+}
+
+// テンプレートフォームリセット
+function resetTemplateForm() {
+    templateTitleInput.value = '';
+    templateMainInput.value = '';
+    addTemplateBtn.textContent = '追加';
+    addTemplateBtn.onclick = handleAddTemplate;
+}
+
+// テンプレート削除
+async function handleDeleteTemplate(name) {
+    showConfirm('このテンプレートを削除しますか？', '', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/mail-templates/${encodeURIComponent(name)}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                await loadMailTemplates();
+            }
+        } catch (error) {
+            console.error('Error deleting template:', error);
+        }
+    });
 }
 
 // メールモーダル開く
@@ -438,8 +482,8 @@ function openMailModal(email) {
 function selectMailTemplate(templateName) {
     const template = mailTemplates[templateName];
     if (template) {
-        mailSubjectInput.value = template.main;
-        mailBodyInput.value = template.title;
+        mailSubjectInput.value = template.title;
+        mailBodyInput.value = template.main;
     }
 }
 
@@ -523,7 +567,7 @@ async function handlePasswordChange() {
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            alert('現在のパスワードが正しくありません。');
+            alert('パスワードの変更に失敗しました。');
         }
     } catch (error) {
         console.error('Error changing password:', error);
@@ -549,7 +593,6 @@ function displayHolidays(holidays) {
         return;
     }
 
-    // 日付順にソート
     const sortedHolidays = holidays.sort((a, b) => new Date(a) - new Date(b));
     
     holidaysListDiv.innerHTML = sortedHolidays.map(holiday => {
@@ -581,7 +624,6 @@ async function handleAddHoliday() {
         return;
     }
 
-    // 既存の定休日と重複チェック
     try {
         const response = await fetch(`${API_BASE_URL}/holidays`);
         const existingHolidays = await response.json();
@@ -594,7 +636,6 @@ async function handleAddHoliday() {
         console.error('Error checking existing holidays:', error);
     }
 
-    // 過去の日付チェック
     const selectedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -684,11 +725,14 @@ function displayMenus(menus) {
             <div class="menu-item">
                 <div class="menu-header">
                     <span class="menu-name">${menuName}</span>
-                    <span class="menu-worktime">${menu.worktime}分</span>
+                    <div>
+                        <span class="menu-worktime">${menu.worktime}分</span>
+                        <span class="menu-fare">${menu.fare || 0}円</span>
+                    </div>
                 </div>
                 <p>${menu.text}</p>
                 <div class="menu-actions">
-                    <button class="btn btn-secondary btn-small" onclick="editMenu('${menuName}', '${menu.text}', ${menu.worktime})">編集</button>
+                    <button class="btn btn-secondary btn-small" onclick="editMenu('${menuName}', '${menu.text}', ${menu.worktime}, ${menu.fare || 0})">編集</button>
                     <button class="btn btn-danger btn-small" onclick="handleDeleteMenu('${menuName}')">削除</button>
                 </div>
             </div>
@@ -701,8 +745,9 @@ async function handleAddMenu() {
     const name = menuNameInput.value.trim();
     const text = menuTextInput.value.trim();
     const worktime = parseInt(menuWorktimeInput.value);
+    const fare = parseInt(menuFareInput.value);
 
-    if (!name || !text || !worktime) {
+    if (!name || !text || !worktime || !fare) {
         alert('すべての項目を入力してください。');
         return;
     }
@@ -716,7 +761,8 @@ async function handleAddMenu() {
             body: JSON.stringify({
                 name: name,
                 text: text,
-                worktime: worktime
+                worktime: worktime,
+                fare: fare
             })
         });
 
@@ -724,6 +770,7 @@ async function handleAddMenu() {
             menuNameInput.value = '';
             menuTextInput.value = '';
             menuWorktimeInput.value = '';
+            menuFareInput.value = '';
             await loadMenus();
         }
     } catch (error) {
@@ -732,12 +779,12 @@ async function handleAddMenu() {
 }
 
 // メニュー編集
-function editMenu(name, text, worktime) {
+function editMenu(name, text, worktime, fare) {
     menuNameInput.value = name;
     menuTextInput.value = text;
     menuWorktimeInput.value = worktime;
+    menuFareInput.value = fare;
     
-    // 追加ボタンを更新ボタンに変更
     addMenuBtn.textContent = '更新';
     addMenuBtn.onclick = () => handleUpdateMenu(name);
 }
@@ -746,9 +793,10 @@ function editMenu(name, text, worktime) {
 async function handleUpdateMenu(originalName) {
     const text = menuTextInput.value.trim();
     const worktime = parseInt(menuWorktimeInput.value);
+    const fare = parseInt(menuFareInput.value);
 
-    if (!text || !worktime) {
-        alert('説明と作業時間を入力してください。');
+    if (!text || !worktime || !fare) {
+        alert('説明、作業時間、料金を入力してください。');
         return;
     }
 
@@ -760,7 +808,8 @@ async function handleUpdateMenu(originalName) {
             },
             body: JSON.stringify({
                 text: text,
-                worktime: worktime
+                worktime: worktime,
+                fare: fare
             })
         });
 
@@ -778,6 +827,7 @@ function resetMenuForm() {
     menuNameInput.value = '';
     menuTextInput.value = '';
     menuWorktimeInput.value = '';
+    menuFareInput.value = '';
     addMenuBtn.textContent = '追加';
     addMenuBtn.onclick = handleAddMenu;
 }
@@ -842,4 +892,84 @@ function showErrorMessage(message) {
     setTimeout(() => {
         holidayMessage.className = 'message';
     }, 3000);
+}) {
+        console.error('Login error:', error);
+        showError('ログインエラーが発生しました。');
+    }
 }
+
+// ログアウト処理
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    showLoginScreen();
+}
+
+// メイン画面表示
+function showMainScreen() {
+    loginScreen.classList.add('hidden');
+    mainScreen.classList.remove('hidden');
+    loadInitialData();
+}
+
+// ログイン画面表示
+function showLoginScreen() {
+    mainScreen.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    userIdInput.value = '';
+    passwordInput.value = '';
+    hideError();
+}
+
+// 初期データ読み込み
+async function loadInitialData() {
+    await loadPopulation();
+    await loadReservations();
+    await loadMailTemplates();
+    await loadHolidays();
+    await loadMenus();
+}
+
+// タブ切り替え
+function switchTab(tabName) {
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(`${tabName}-tab`);
+
+    if (activeTab && activeContent) {
+        activeTab.classList.add('active');
+        activeContent.classList.add('active');
+    }
+}
+
+// 人数データ読み込み
+async function loadPopulation() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/population`);
+        const data = await response.json();
+        currentPopulationSpan.textContent = data.now || 0;
+    } catch (error) {
+        console.error('Error loading population:', error);
+    }
+}
+
+// 人数更新
+async function updatePopulation(change) {
+    const currentCount = parseInt(currentPopulationSpan.textContent);
+    const newCount = Math.max(0, currentCount + change);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/population`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ now: newCount })
+        });
+
+        if (response.ok) {
+            currentPopulationSpan.textContent = newCount;
+        }
+    } catch (error)
