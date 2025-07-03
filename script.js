@@ -531,6 +531,7 @@ async function handleSendMail() {
 }
 
 // パスワード変更
+// 改良されたパスワード変更
 async function handlePasswordChange() {
     const oldPassword = oldPasswordInput.value;
     const newPassword = newPasswordInput.value;
@@ -567,14 +568,16 @@ async function handlePasswordChange() {
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            alert('パスワードの変更に失敗しました。');
+            // 通常の変更が失敗した場合、緊急変更を提案
+            if (confirm(`通常の変更が失敗しました（${data.error}）。\n緊急変更機能を使用しますか？`)) {
+                handleForcePasswordChange();
+            }
         }
     } catch (error) {
         console.error('Error changing password:', error);
         alert('パスワード変更エラーが発生しました。');
     }
 }
-
 // 定休日読み込み
 async function loadHolidays() {
     try {
