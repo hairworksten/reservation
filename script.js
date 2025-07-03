@@ -896,7 +896,6 @@ function showErrorMessage(message) {
         console.error('Login error:', error);
         showError('ログインエラーが発生しました。');
     }
-}
 
 // ログアウト処理
 function handleLogout() {
