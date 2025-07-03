@@ -189,7 +189,6 @@ function showLoginScreen() {
     passwordInput.value = '';
 }
     hideError();
-}
 
 // 初期データ読み込み
 async function loadInitialData() {
