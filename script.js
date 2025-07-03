@@ -251,10 +251,24 @@ async function updatePopulation(change) {
 async function loadReservations() {
     try {
         const response = await fetch(`${API_BASE_URL}/reservations`);
-        reservations = await response.json();
+        const data = await response.json();
+        
+        // デバッグ用ログ
+        console.log('Raw API response:', data);
+        
+        // データが配列かどうかチェック
+        if (Array.isArray(data)) {
+            reservations = data;
+        } else {
+            console.error('Reservations data is not an array:', data);
+            reservations = [];
+        }
+        
         displayReservations();
     } catch (error) {
         console.error('Error loading reservations:', error);
+        reservations = [];
+        displayReservations();
     }
 }
 
@@ -262,10 +276,16 @@ async function loadReservations() {
 function displayReservations() {
     const today = new Date().toISOString().split('T')[0];
     
+    // デバッグ用ログ
+    console.log('Today date:', today);
+    console.log('All reservations:', reservations);
+    console.log('Reservations for today:', reservations.filter(r => r.date === today));
+    
     // 今日の予約（今日の日付かつstates: 0のみ）
-    const todayReservations = reservations.filter(r => 
-        r.date === today && r.states === 0
-    ).sort((a, b) => a.Time.localeCompare(b.Time));
+    const todayReservations = reservations.filter(r => {
+        console.log(`Checking reservation: date=${r.date}, states=${r.states}, today=${today}`);
+        return r.date === today && r.states === 0;
+    }).sort((a, b) => a.Time.localeCompare(b.Time));
 
     // これからの予約（今日以降でstates: 0のみ）
     const upcomingReservations = reservations.filter(r => 
@@ -285,6 +305,11 @@ function displayReservations() {
         return b.date.localeCompare(a.date);
     });
 
+    // デバッグ用ログ
+    console.log('Today reservations count:', todayReservations.length);
+    console.log('Upcoming reservations count:', upcomingReservations.length);
+    console.log('History reservations count:', historyReservations.length);
+
     todayReservationsDiv.innerHTML = renderReservationsList(todayReservations, 'today');
     upcomingReservationsDiv.innerHTML = renderReservationsList(upcomingReservations, 'upcoming');
     reservationHistoryDiv.innerHTML = renderReservationsList(historyReservations, 'history');
@@ -292,6 +317,8 @@ function displayReservations() {
 
 // 予約リストのHTML生成
 function renderReservationsList(reservationsList, type) {
+    console.log(`Rendering ${type} reservations:`, reservationsList);
+    
     if (reservationsList.length === 0) {
         return '<p>予約がありません。</p>';
     }
@@ -326,11 +353,11 @@ function renderReservationsList(reservationsList, type) {
                 </div>
                 <div class="reservation-info">
                     <div><strong>日付:</strong> ${reservation.date}</div>
-                    <div><strong>名前:</strong> ${reservation['Name-f']} ${reservation['Name-s']}</div>
-                    <div><strong>フリガナ:</strong> ${reservation['Name-f-f']} ${reservation['Name-s-f']}</div>
-                    <div><strong>メニュー:</strong> ${reservation.Menu}</div>
-                    <div><strong>作業時間:</strong> ${reservation.WorkTime}分</div>
-                    <div><strong>メール:</strong> ${reservation.mail}</div>
+                    <div><strong>名前:</strong> ${reservation['Name-f'] || ''} ${reservation['Name-s'] || ''}</div>
+                    <div><strong>フリガナ:</strong> ${reservation['Name-f-f'] || ''} ${reservation['Name-s-f'] || ''}</div>
+                    <div><strong>メニュー:</strong> ${reservation.Menu || ''}</div>
+                    <div><strong>作業時間:</strong> ${reservation.WorkTime || ''}分</div>
+                    <div><strong>メール:</strong> ${reservation.mail || ''}</div>
                 </div>
                 <div class="reservation-actions">
                     ${actionsHTML}
