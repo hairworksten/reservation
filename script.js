@@ -63,9 +63,7 @@ const confirmMessage = document.getElementById('confirm-message');
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
     initializeEventListeners();
-    console.log('Event listeners initialized');
     checkLoginStatus();
 });
 
@@ -124,15 +122,10 @@ function initializeEventListeners() {
 
 // ログイン状態チェック
 function checkLoginStatus() {
-    console.log('Checking login status...');
     const savedUser = localStorage.getItem('currentUser');
-    console.log('Saved user:', savedUser);
     if (savedUser) {
         currentUser = savedUser;
-        console.log('User found, showing main screen');
         showMainScreen();
-    } else {
-        console.log('No saved user found');
     }
 }
 
