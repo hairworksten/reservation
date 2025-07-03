@@ -971,4 +971,7 @@ async function updatePopulation(change) {
         if (response.ok) {
             currentPopulationSpan.textContent = newCount;
         }
-    } catch (error)
+    } catch (error) {
+        console.error('Error updating population:', error);
+    }
+}
