@@ -6,6 +6,157 @@ let currentUser = null;
 let reservations = [];
 let mailTemplates = {};
 let currentMailRecipient = '';
+let currentMenus = {}; // メニューフォームリセット
+function resetMenuForm() {
+    menuNameInput.value = '';
+    menuTextInput.value = '';
+    menuWorktimeInput.value = '';
+    menuFareInput.value = '';
+    addMenuBtn.textContent = '追加';
+    addMenuBtn.onclick = handleAddMenu;
+}
+
+// メニュー削除
+async function handleDeleteMenu(name) {
+    showConfirm('このメニューを削除しますか？', '', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/menus/${encodeURIComponent(name)}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                await loadMenus();
+            }
+        } catch (error) {
+            console.error('Error deleting menu:', error);
+        }
+    });
+}
+
+// 確認モーダル表示
+function showConfirm(title, message, onConfirm) {
+    confirmTitle.textContent = title;
+    confirmMessage.textContent = message;
+    confirmYesBtn.onclick = () => {
+        closeConfirmModal();
+        onConfirm();
+    };
+    confirmModal.classList.add('active');
+}
+
+// 確認モーダル閉じる
+function closeConfirmModal() {
+    confirmModal.classList.remove('active');
+}
+
+// エラー表示
+function showError(message) {
+    loginError.textContent = message;
+    loginError.classList.add('show');
+}
+
+// エラー非表示
+function hideError() {
+    loginError.classList.remove('show');
+}
+
+// 成功メッセージ表示
+function showSuccessMessage(message) {
+    holidayMessage.textContent = message;
+    holidayMessage.className = 'message success';
+    setTimeout(() => {
+        holidayMessage.className = 'message';
+    }, 3000);
+}
+
+// エラーメッセージ表示
+function showErrorMessage(message) {
+    holidayMessage.textContent = message;
+    holidayMessage.className = 'message error';
+    setTimeout(() => {
+        holidayMessage.className = 'message';
+    }, 3000);
+}
+
+// ログアウト処理
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    showLoginScreen();
+}
+
+// メイン画面表示
+function showMainScreen() {
+    loginScreen.classList.add('hidden');
+    mainScreen.classList.remove('hidden');
+    loadInitialData();
+}
+
+// ログイン画面表示
+function showLoginScreen() {
+    mainScreen.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    userIdInput.value = '';
+    passwordInput.value = '';
+    hideError();
+}
+
+// 初期データ読み込み
+async function loadInitialData() {
+    await loadPopulation();
+    await loadReservations();
+    await loadMailTemplates();
+    await loadHolidays();
+    await loadMenus();
+}
+
+// タブ切り替え
+function switchTab(tabName) {
+    tabBtns.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(`${tabName}-tab`);
+
+    if (activeTab && activeContent) {
+        activeTab.classList.add('active');
+        activeContent.classList.add('active');
+    }
+}
+
+// 人数データ読み込み
+async function loadPopulation() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/population`);
+        const data = await response.json();
+        currentPopulationSpan.textContent = data.now || 0;
+    } catch (error) {
+        console.error('Error loading population:', error);
+    }
+}
+
+// 人数更新
+async function updatePopulation(change) {
+    const currentCount = parseInt(currentPopulationSpan.textContent);
+    const newCount = Math.max(0, currentCount + change);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/population`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ now: newCount })
+        });
+
+        if (response.ok) {
+            currentPopulationSpan.textContent = newCount;
+        }
+    } catch (error) {
+        console.error('Error updating population:', error);
+    }
+}ニューデータを保存するグローバル変数
+let currentTemplates = {}; // テンプレートデータを保存
 
 // DOM要素の取得
 const loginScreen = document.getElementById('login-screen');
@@ -339,6 +490,8 @@ async function loadMailTemplates() {
 
 // テンプレート表示
 function displayTemplates() {
+    currentTemplates = mailTemplates; // テンプレートデータを保存
+    
     templatesListDiv.innerHTML = Object.keys(mailTemplates).map(templateName => {
         const template = mailTemplates[templateName];
         return `
@@ -347,14 +500,41 @@ function displayTemplates() {
                     <span class="template-title">${templateName}</span>
                 </div>
                 <p><strong>件名:</strong> ${template.title}</p>
-                <p><strong>本文:</strong> ${template.main}</p>
+                <p><strong>本文:</strong> <span style="white-space: pre-line;">${template.main}</span></p>
                 <div class="template-actions">
-                    <button class="btn btn-secondary btn-small" onclick="editTemplate('${templateName}', '${template.title}', '${template.main}')">編集</button>
-                    <button class="btn btn-danger btn-small" onclick="handleDeleteTemplate('${templateName}')">削除</button>
+                    <button class="btn btn-secondary btn-small template-edit-btn" data-template-name="${templateName}">編集</button>
+                    <button class="btn btn-danger btn-small template-delete-btn" data-template-name="${templateName}">削除</button>
                 </div>
             </div>
         `;
     }).join('');
+    
+    // テンプレートのイベントリスナーを追加
+    attachTemplateEventListeners();
+}
+
+// テンプレートのイベントリスナーを設定
+function attachTemplateEventListeners() {
+    // 編集ボタンのイベントリスナー
+    const editButtons = document.querySelectorAll('.template-edit-btn');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const templateName = this.dataset.templateName;
+            const template = currentTemplates[templateName];
+            if (template) {
+                editTemplate(templateName, template.title, template.main);
+            }
+        });
+    });
+    
+    // 削除ボタンのイベントリスナー
+    const deleteButtons = document.querySelectorAll('.template-delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const templateName = this.dataset.templateName;
+            handleDeleteTemplate(templateName);
+        });
+    });
 }
 
 // テンプレート追加
@@ -591,6 +771,7 @@ async function handlePasswordChange() {
         alert('ネットワークエラーが発生しました。インターネット接続を確認してください。');
     }
 }
+
 // 定休日読み込み
 async function loadHolidays() {
     try {
@@ -732,13 +913,13 @@ async function loadMenus() {
         console.error('Error loading menus:', error);
     }
 }
+
 // 修正されたメニュー表示関数
 function displayMenus(menus) {
-    menusListDiv.innerHTML = Object.keys(menus).map(menuName => {
+    currentMenus = menus; // メニューデータを保存
+    
+    menusListDiv.innerHTML = Object.keys(menus).map((menuName, index) => {
         const menu = menus[menuName];
-        // 改行文字をエスケープして安全にする
-        const safeText = menu.text.replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-        const safeName = menuName.replace(/'/g, "\\'");
         
         return `
             <div class="menu-item">
@@ -751,29 +932,39 @@ function displayMenus(menus) {
                 </div>
                 <p style="white-space: pre-line;">${menu.text}</p>
                 <div class="menu-actions">
-                    <button class="btn btn-secondary btn-small" onclick="editMenuSafe('${safeName}')">編集</button>
-                    <button class="btn btn-danger btn-small" onclick="handleDeleteMenu('${safeName}')">削除</button>
+                    <button class="btn btn-secondary btn-small menu-edit-btn" data-menu-index="${index}" data-menu-name="${menuName}">編集</button>
+                    <button class="btn btn-danger btn-small menu-delete-btn" data-menu-name="${menuName}">削除</button>
                 </div>
             </div>
         `;
     }).join('');
+    
+    // イベントリスナーを追加
+    attachMenuEventListeners();
 }
 
-// 安全なメニュー編集関数
-function editMenuSafe(menuName) {
-    // グローバル変数から直接メニューデータを取得
-    const response = fetch(`${API_BASE_URL}/menus`)
-        .then(response => response.json())
-        .then(menus => {
-            const menu = menus[menuName];
+// メニューのイベントリスナーを設定
+function attachMenuEventListeners() {
+    // 編集ボタンのイベントリスナー
+    const editButtons = document.querySelectorAll('.menu-edit-btn');
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const menuName = this.dataset.menuName;
+            const menu = currentMenus[menuName];
             if (menu) {
                 editMenu(menuName, menu.text, menu.worktime, menu.fare || 0);
             }
-        })
-        .catch(error => {
-            console.error('Error loading menu for edit:', error);
-            alert('メニューの読み込みに失敗しました。');
         });
+    });
+    
+    // 削除ボタンのイベントリスナー
+    const deleteButtons = document.querySelectorAll('.menu-delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const menuName = this.dataset.menuName;
+            handleDeleteMenu(menuName);
+        });
+    });
 }
 
 // 既存のeditMenu関数（変更なし）
@@ -786,6 +977,7 @@ function editMenu(name, text, worktime, fare) {
     addMenuBtn.textContent = '更新';
     addMenuBtn.onclick = () => handleUpdateMenu(name);
 }
+
 // メニュー追加
 async function handleAddMenu() {
     const name = menuNameInput.value.trim();
@@ -857,153 +1049,4 @@ async function handleUpdateMenu(originalName) {
     }
 }
 
-// メニューフォームリセット
-function resetMenuForm() {
-    menuNameInput.value = '';
-    menuTextInput.value = '';
-    menuWorktimeInput.value = '';
-    menuFareInput.value = '';
-    addMenuBtn.textContent = '追加';
-    addMenuBtn.onclick = handleAddMenu;
-}
-
-// メニュー削除
-async function handleDeleteMenu(name) {
-    showConfirm('このメニューを削除しますか？', '', async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/menus/${encodeURIComponent(name)}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                await loadMenus();
-            }
-        } catch (error) {
-            console.error('Error deleting menu:', error);
-        }
-    });
-}
-
-// 確認モーダル表示
-function showConfirm(title, message, onConfirm) {
-    confirmTitle.textContent = title;
-    confirmMessage.textContent = message;
-    confirmYesBtn.onclick = () => {
-        closeConfirmModal();
-        onConfirm();
-    };
-    confirmModal.classList.add('active');
-}
-
-// 確認モーダル閉じる
-function closeConfirmModal() {
-    confirmModal.classList.remove('active');
-}
-
-// エラー表示
-function showError(message) {
-    loginError.textContent = message;
-    loginError.classList.add('show');
-}
-
-// エラー非表示
-function hideError() {
-    loginError.classList.remove('show');
-}
-
-// 成功メッセージ表示
-function showSuccessMessage(message) {
-    holidayMessage.textContent = message;
-    holidayMessage.className = 'message success';
-    setTimeout(() => {
-        holidayMessage.className = 'message';
-    }, 3000);
-}
-
-// エラーメッセージ表示
-function showErrorMessage(message) {
-    holidayMessage.textContent = message;
-    holidayMessage.className = 'message error';
-    setTimeout(() => {
-        holidayMessage.className = 'message';
-    }, 3000);
-}
-
-// ログアウト処理
-function handleLogout() {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    showLoginScreen();
-}
-
-// メイン画面表示
-function showMainScreen() {
-    loginScreen.classList.add('hidden');
-    mainScreen.classList.remove('hidden');
-    loadInitialData();
-}
-
-// ログイン画面表示
-function showLoginScreen() {
-    mainScreen.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-    userIdInput.value = '';
-    passwordInput.value = '';
-    hideError();
-}
-
-// 初期データ読み込み
-async function loadInitialData() {
-    await loadPopulation();
-    await loadReservations();
-    await loadMailTemplates();
-    await loadHolidays();
-    await loadMenus();
-}
-
-// タブ切り替え
-function switchTab(tabName) {
-    tabBtns.forEach(btn => btn.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
-    const activeContent = document.getElementById(`${tabName}-tab`);
-
-    if (activeTab && activeContent) {
-        activeTab.classList.add('active');
-        activeContent.classList.add('active');
-    }
-}
-
-// 人数データ読み込み
-async function loadPopulation() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/population`);
-        const data = await response.json();
-        currentPopulationSpan.textContent = data.now || 0;
-    } catch (error) {
-        console.error('Error loading population:', error);
-    }
-}
-
-// 人数更新
-async function updatePopulation(change) {
-    const currentCount = parseInt(currentPopulationSpan.textContent);
-    const newCount = Math.max(0, currentCount + change);
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/population`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ now: newCount })
-        });
-
-        if (response.ok) {
-            currentPopulationSpan.textContent = newCount;
-        }
-    } catch (error) {
-        console.error('Error updating population:', error);
-    }
-}
+// メ
