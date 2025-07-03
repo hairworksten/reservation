@@ -1,5 +1,5 @@
 // APIベースURL - 本番環境ではCloud RunのURLに変更してください
-const API_BASE_URL = 'https://your-cloudrun-url.a.run.app/api';
+const API_BASE_URL = 'https://reservation-api-36382648212.asia-northeast1.run.app/api';
 
 // グローバル変数
 let currentUser = null;
@@ -35,7 +35,6 @@ const oldPasswordInput = document.getElementById('old-password');
 const newPasswordInput = document.getElementById('new-password');
 const confirmPasswordInput = document.getElementById('confirm-password');
 const changePasswordBtn = document.getElementById('change-password-btn');
-let passwordMessage = null; // 動的に作成するメッセージ要素
 
 // 定休日関連
 const holidayDateInput = document.getElementById('holiday-date');
@@ -199,9 +198,6 @@ async function loadInitialData() {
     await loadMailTemplates();
     await loadHolidays();
     await loadMenus();
-    
-    // デバッグ情報を確認
-    console.log('現在のユーザー:', currentUser);
 }
 
 // タブ切り替え
@@ -491,32 +487,21 @@ async function handleSendMail() {
 
 // パスワード変更
 async function handlePasswordChange() {
-    const oldPassword = oldPasswordInput.value.trim();
-    const newPassword = newPasswordInput.value.trim();
-    const confirmPassword = confirmPasswordInput.value.trim();
+    const oldPassword = oldPasswordInput.value;
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
 
     if (!oldPassword || !newPassword || !confirmPassword) {
-        showPasswordMessage('すべての項目を入力してください。', 'error');
+        alert('すべての項目を入力してください。');
         return;
     }
 
     if (newPassword !== confirmPassword) {
-        showPasswordMessage('新しいパスワードが一致しません。', 'error');
-        return;
-    }
-
-    if (newPassword.length < 4) {
-        showPasswordMessage('新しいパスワードは4文字以上で入力してください。', 'error');
+        alert('新しいパスワードが一致しません。');
         return;
     }
 
     try {
-        console.log('パスワード変更リクエスト送信:', {
-            user_id: currentUser,
-            old_password: oldPassword,
-            new_password: newPassword
-        });
-
         const response = await fetch(`${API_BASE_URL}/change-password`, {
             method: 'POST',
             headers: {
@@ -530,19 +515,18 @@ async function handlePasswordChange() {
         });
 
         const data = await response.json();
-        console.log('パスワード変更レスポンス:', data);
 
         if (data.success) {
-            showPasswordMessage('パスワードを変更しました。', 'success');
+            alert('パスワードを変更しました。');
             oldPasswordInput.value = '';
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            showPasswordMessage(data.error || 'パスワード変更に失敗しました。', 'error');
+            alert('現在のパスワードが正しくありません。');
         }
     } catch (error) {
         console.error('Error changing password:', error);
-        showPasswordMessage('パスワード変更エラーが発生しました。', 'error');
+        alert('パスワード変更エラーが発生しました。');
     }
 }
 
@@ -847,29 +831,6 @@ function showSuccessMessage(message) {
     holidayMessage.className = 'message success';
     setTimeout(() => {
         holidayMessage.className = 'message';
-    }, 3000);
-}
-
-// パスワードメッセージ表示
-function showPasswordMessage(message, type) {
-    // パスワードメッセージ要素がない場合は作成
-    if (!passwordMessage) {
-        passwordMessage = document.createElement('div');
-        passwordMessage.className = 'message';
-        passwordMessage.id = 'password-message';
-        
-        // パスワード変更ボタンの後に挿入
-        const passwordSection = changePasswordBtn.closest('.section');
-        const passwordForm = passwordSection.querySelector('.password-form');
-        passwordForm.appendChild(passwordMessage);
-    }
-    
-    passwordMessage.textContent = message;
-    passwordMessage.className = `message ${type}`;
-    
-    // 3秒後に非表示
-    setTimeout(() => {
-        passwordMessage.className = 'message';
     }, 3000);
 }
 
