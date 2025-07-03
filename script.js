@@ -262,12 +262,12 @@ async function loadReservations() {
 function displayReservations() {
     const today = new Date().toISOString().split('T')[0];
     
-    // 今日の予約（states: 0のみ）
+    // 今日の予約（今日の日付かつstates: 0のみ）
     const todayReservations = reservations.filter(r => 
         r.date === today && r.states === 0
     ).sort((a, b) => a.Time.localeCompare(b.Time));
 
-    // これからの予約（states: 0のみ）
+    // これからの予約（今日以降でstates: 0のみ）
     const upcomingReservations = reservations.filter(r => 
         r.date >= today && r.states === 0
     ).sort((a, b) => {
@@ -303,7 +303,7 @@ function renderReservationsList(reservationsList, type) {
         let actionsHTML = '';
         if (type === 'today') {
             actionsHTML = `
-                <button class="btn btn-primary btn-small" onclick="handleVisit('${reservation.id}')">来店</button>
+                <button class="btn btn-success btn-small" onclick="handleVisit('${reservation.id}')">来店</button>
                 <button class="btn btn-danger btn-small" onclick="handleCancel('${reservation.id}')">キャンセル</button>
                 <button class="btn btn-secondary btn-small" onclick="openMailModal('${reservation.mail}')">メール送信</button>
             `;
