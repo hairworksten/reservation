@@ -892,7 +892,7 @@ function showErrorMessage(message) {
     setTimeout(() => {
         holidayMessage.className = 'message';
     }, 3000);
-}) {
+} {
         console.error('Login error:', error);
         showError('ログインエラーが発生しました。');
     }
