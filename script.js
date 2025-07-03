@@ -64,7 +64,9 @@ const confirmMessage = document.getElementById('confirm-message');
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
     initializeEventListeners();
+    console.log('Event listeners initialized');
     checkLoginStatus();
 });
 
@@ -123,10 +125,15 @@ function initializeEventListeners() {
 
 // ログイン状態チェック
 function checkLoginStatus() {
+    console.log('Checking login status...');
     const savedUser = localStorage.getItem('currentUser');
+    console.log('Saved user:', savedUser);
     if (savedUser) {
         currentUser = savedUser;
+        console.log('User found, showing main screen');
         showMainScreen();
+    } else {
+        console.log('No saved user found');
     }
 }
 
@@ -177,8 +184,10 @@ function handleLogout() {
 
 // メイン画面表示
 function showMainScreen() {
+    console.log('Showing main screen...');
     loginScreen.classList.add('hidden');
     mainScreen.classList.remove('hidden');
+    console.log('Calling loadInitialData...');
     loadInitialData();
 }
 
@@ -193,11 +202,24 @@ function showLoginScreen() {
 
 // 初期データ読み込み
 async function loadInitialData() {
+    console.log('Loading initial data...');
+    
+    console.log('Loading population...');
     await loadPopulation();
+    
+    console.log('Loading reservations...');
     await loadReservations();
+    
+    console.log('Loading mail templates...');
     await loadMailTemplates();
+    
+    console.log('Loading holidays...');
     await loadHolidays();
+    
+    console.log('Loading menus...');
     await loadMenus();
+    
+    console.log('Initial data loading complete');
 }
 
 // タブ切り替え
@@ -249,8 +271,13 @@ async function updatePopulation(change) {
 
 // 予約データ読み込み
 async function loadReservations() {
+    console.log('Starting loadReservations...');
     try {
+        console.log('Fetching from:', `${API_BASE_URL}/reservations`);
         const response = await fetch(`${API_BASE_URL}/reservations`);
+        console.log('Response status:', response.status);
+        console.log('Response OK:', response.ok);
+        
         const data = await response.json();
         
         // デバッグ用ログ
@@ -259,11 +286,13 @@ async function loadReservations() {
         // データが配列かどうかチェック
         if (Array.isArray(data)) {
             reservations = data;
+            console.log('Reservations set to:', reservations);
         } else {
             console.error('Reservations data is not an array:', data);
             reservations = [];
         }
         
+        console.log('Calling displayReservations...');
         displayReservations();
     } catch (error) {
         console.error('Error loading reservations:', error);
@@ -271,6 +300,12 @@ async function loadReservations() {
         displayReservations();
     }
 }
+
+// テスト用関数（コンソールから手動実行可能）
+window.testLoadReservations = function() {
+    console.log('Manual test: loading reservations...');
+    loadReservations();
+};
 
 // 予約表示
 function displayReservations() {
