@@ -531,12 +531,13 @@ async function handleSendMail() {
 }
 
 // パスワード変更
-// デバッグ強化版パスワード変更
+// 改善されたパスワード変更関数
 async function handlePasswordChange() {
     const oldPassword = oldPasswordInput.value;
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
 
+    // 入力チェック
     if (!oldPassword || !newPassword || !confirmPassword) {
         alert('すべての項目を入力してください。');
         return;
@@ -547,24 +548,14 @@ async function handlePasswordChange() {
         return;
     }
 
-    // まずデバッグ情報を取得
+    if (newPassword.length < 4) {
+        alert('新しいパスワードは4文字以上で設定してください。');
+        return;
+    }
+
     try {
-        console.log('🔍 Getting debug info...');
-        const debugResponse = await fetch(`${API_BASE_URL}/debug-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: currentUser,
-                old_password: oldPassword
-            })
-        });
-
-        const debugData = await debugResponse.json();
-        console.log('🔍 Debug info:', debugData);
-
-        // 実際のパスワード変更を試行
+        console.log('🔧 パスワード変更を開始します...');
+        
         const response = await fetch(`${API_BASE_URL}/change-password`, {
             method: 'POST',
             headers: {
@@ -578,19 +569,28 @@ async function handlePasswordChange() {
         });
 
         const data = await response.json();
-        console.log('🔍 Password change result:', data);
+        console.log('🔧 Server response:', data);
 
         if (data.success) {
             alert('パスワードを変更しました。');
+            // フォームをクリア
             oldPasswordInput.value = '';
             newPasswordInput.value = '';
             confirmPasswordInput.value = '';
         } else {
-            alert(`失敗: ${data.error}\n\nデバッグ情報をコンソールで確認してください。`);
+            // エラーの詳細を表示
+            let errorMessage = `パスワード変更に失敗しました。\n\n理由: ${data.error}`;
+            
+            if (data.debug) {
+                console.log('🔍 Debug information:', data.debug);
+                errorMessage += '\n\nコンソール（F12）でデバッグ情報を確認してください。';
+            }
+            
+            alert(errorMessage);
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('エラーが発生しました。コンソールを確認してください。');
+        console.error('❌ Network error:', error);
+        alert('ネットワークエラーが発生しました。インターネット接続を確認してください。');
     }
 }
 
