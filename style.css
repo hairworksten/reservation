@@ -1,46 +1,36 @@
+/* Hair Works天 予約サイト - 完全版スタイルシート */
+
+/* ベースリセット & Safari対応 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 body {
     font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2c5b87 25%, #1a3659 75%, #0f2540 100%);
-    color: #f5f3e8;
+    background: #0a1628;
+    color: #ffffff;
     line-height: 1.6;
     min-height: 100vh;
-    position: relative;
+    color-scheme: dark;
 }
 
-/* 和風背景テクスチャ */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 20%, rgba(255, 107, 53, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(245, 243, 232, 0.02) 0%, transparent 50%),
-                radial-gradient(circle at 40% 60%, rgba(44, 91, 135, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-}
-
+/* ヘッダー */
 .main-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, rgba(30, 58, 95, 0.95) 0%, rgba(44, 91, 135, 0.95) 100%);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    background: #0f1a2e;
     z-index: 1000;
     padding: 10px 0;
-    box-shadow: 0 4px 20px rgba(15, 37, 64, 0.5), 0 1px 0 rgba(255, 107, 53, 0.2);
-    border-bottom: 2px solid rgba(255, 107, 53, 0.1);
-    overflow: visible;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #ff8c42;
 }
 
 .header-content {
@@ -48,54 +38,52 @@ body::before {
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     align-items: center;
     justify-content: flex-start;
     gap: 25px;
     height: 80px;
-    overflow: visible;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .header-logo {
     width: 80px;
-    height: 180px;
+    height: 60px;
     background: transparent;
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
-    color: #f5f3e8;
+    color: #ffffff;
     position: relative;
-    overflow: hidden;
 }
 
 .header-logo img {
-    width: 200%;
-    height: 200%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     display: block;
-    filter: brightness(0) invert(1);
-    -webkit-filter: brightness(0) invert(1);
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
-/* ロゴ画像が読み込まれていない場合のフォールバック */
 .header-logo::after {
     content: "Hair Works天";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
     white-space: nowrap;
     display: block;
-    color: #f5f3e8;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
-}
-
-/* 画像が表示されている時はテキストを隠す（JavaScript制御に変更） */
-.header-logo.has-image {
-    color: transparent;
+    color: #ffffff;
+    font-size: 12px;
 }
 
 .header-logo.has-image::after {
@@ -105,10 +93,10 @@ body::before {
 .header-title {
     font-size: 18px;
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
+    color: #ffffff;
 }
 
+/* メインコンテナ */
 .container {
     max-width: 480px;
     margin: 0 auto;
@@ -119,40 +107,35 @@ body::before {
     text-align: center;
     margin-bottom: 30px;
     padding: 25px;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
-    border-radius: 20px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    background: #1a2a42;
+    border-radius: 10px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .page-title {
     font-size: 24px;
     font-weight: bold;
-    color: #f5f3e8;
+    color: #ffffff;
     margin-bottom: 10px;
-    text-shadow: 3px 3px 6px rgba(15, 37, 64, 0.8);
 }
 
+/* 店舗情報 */
 .shop-info {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.1) 0%, rgba(245, 243, 232, 0.15) 100%);
+    background: #1a2a42;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 30px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.15);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .shop-name {
     font-size: 26px;
     font-weight: bold;
     margin-bottom: 20px;
-    color: #f5f3e8;
+    color: #ffffff;
     text-align: center;
-    text-shadow: 3px 3px 6px rgba(15, 37, 64, 0.8);
 }
 
 .shop-image {
@@ -165,52 +148,48 @@ body::before {
     max-width: 400px;
     height: 200px;
     object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.4), 0 4px 16px rgba(255, 107, 53, 0.2);
-    border: 3px solid rgba(255, 107, 53, 0.3);
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 2px solid #ff8c42;
+    transition: transform 0.2s ease;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .shop-photo:hover {
-    transform: translateY(-5px);
-    -webkit-transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(15, 37, 64, 0.5), 0 6px 20px rgba(255, 107, 53, 0.3);
-    border-color: rgba(255, 107, 53, 0.5);
+    transform: translateY(-2px);
 }
 
 .shop-address {
     font-size: 16px;
     line-height: 1.8;
     margin-bottom: 20px;
-    color: #f5f3e8;
+    color: #ffffff;
     text-align: center;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
 }
 
 .map-link {
     display: block;
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 50%, #cc4f28 100%);
-    color: #f5f3e8;
+    background: #ff8c42;
+    color: #0a1628;
     padding: 15px 25px;
-    border-radius: 30px;
+    border-radius: 25px;
     text-decoration: none;
     text-align: center;
     font-weight: bold;
     margin-top: 15px;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
-    border: 1px solid rgba(245, 243, 232, 0.2);
+    transition: background-color 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .map-link:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 50%, #b3432a 100%);
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: #e67a35;
 }
 
+/* メニューセクション */
 .menu-section {
     margin-bottom: 30px;
 }
@@ -219,142 +198,125 @@ body::before {
     font-size: 22px;
     font-weight: bold;
     margin-bottom: 25px;
-    color: #f5f3e8;
+    color: #ffffff;
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
 }
 
 .menu-grid {
-    display: grid;
+    display: flex;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
     gap: 20px;
 }
 
 .menu-item {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
-    border-radius: 18px;
+    background: #1a2a42;
+    border-radius: 10px;
     padding: 20px;
     cursor: pointer;
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
+    transition: all 0.2s ease;
     border: 2px solid transparent;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    box-shadow: 0 6px 25px rgba(15, 37, 64, 0.2), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .menu-item:hover {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.12) 0%, rgba(245, 243, 232, 0.18) 100%);
-    transform: translateY(-5px);
-    -webkit-transform: translateY(-5px);
-    box-shadow: 0 10px 35px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.2);
-    border-color: rgba(255, 107, 53, 0.3);
+    background: #243552;
+    border-color: #ff8c42;
 }
 
 .menu-item.selected {
-    border-color: #ff6b35;
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0.12) 100%);
-    box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.2);
+    border-color: #ff8c42;
+    background: #243552;
 }
 
 .menu-header {
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .menu-name {
     font-size: 18px;
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
+    color: #ffffff;
 }
 
 .menu-price {
     font-size: 16px;
     font-weight: bold;
-    color: #ff6b35;
-    background: rgba(245, 243, 232, 0.15);
+    color: #ff8c42;
+    background: rgba(255, 140, 66, 0.1);
     padding: 8px 15px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 107, 53, 0.3);
-    box-shadow: inset 0 1px 3px rgba(15, 37, 64, 0.2);
+    border-radius: 15px;
+    border: 1px solid #ff8c42;
 }
 
 .menu-details {
     display: none;
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 107, 53, 0.3);
+    border-top: 1px solid #ff8c42;
 }
 
 .menu-details.show {
     display: block;
-    animation: fadeIn 0.4s ease;
-    -webkit-animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
     from { 
         opacity: 0; 
-        transform: translateY(-15px);
-        -webkit-transform: translateY(-15px);
+        transform: translateY(-5px);
     }
     to { 
         opacity: 1; 
         transform: translateY(0);
-        -webkit-transform: translateY(0);
-    }
-}
-
-@-webkit-keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-15px);
-        -webkit-transform: translateY(-15px);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0);
-        -webkit-transform: translateY(0);
     }
 }
 
 .menu-description {
-    color: #f5f3e8;
+    color: #ffffff;
     margin-bottom: 15px;
     font-size: 14px;
     line-height: 1.7;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.4);
 }
 
 .menu-worktime {
-    color: #ff6b35;
+    color: #ff8c42;
     font-weight: bold;
     margin-bottom: 20px;
     font-size: 14px;
 }
 
 .reservation-notes {
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(255, 107, 53, 0.12) 100%);
+    background: rgba(255, 140, 66, 0.1);
     padding: 18px;
-    border-radius: 15px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    border-left: 4px solid #ff6b35;
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: inset 0 1px 3px rgba(15, 37, 64, 0.2);
+    border-left: 4px solid #ff8c42;
 }
 
 .reservation-notes h4 {
-    color: #ff6b35;
+    color: #ff8c42;
     font-size: 16px;
     margin-bottom: 12px;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
 }
 
 .reservation-notes ul {
     list-style: none;
-    color: #f5f3e8;
+    color: #ffffff;
 }
 
 .reservation-notes li {
@@ -365,125 +327,109 @@ body::before {
 }
 
 .reservation-notes li:before {
-    content: "◆";
-    color: #ff6b35;
+    content: "•";
+    color: #ff8c42;
     position: absolute;
     left: 0;
-    font-size: 12px;
+    font-size: 14px;
 }
 
-.select-button {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 50%, #cc4f28 100%);
-    color: #f5f3e8;
-    padding: 15px 35px;
-    border: none;
-    border-radius: 30px;
+/* ボタン共通スタイル */
+.select-button,
+.next-button,
+.confirm-button,
+.back-button,
+.add-companion-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    border-radius: 25px;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    border: none;
+}
+
+.select-button {
+    background: #ff8c42;
+    color: #0a1628;
+    padding: 15px 35px;
     width: 100%;
     margin-top: 15px;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
-    border: 1px solid rgba(245, 243, 232, 0.2);
 }
 
-.select-button:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 50%, #b3432a 100%);
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.select-button:hover,
+.select-button:focus {
+    background: #e67a35;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
 }
 
-.loading {
-    text-align: center;
-    padding: 30px;
-    color: #f5f3e8;
-    font-size: 16px;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
-}
-
-.error {
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.2) 100%);
-    color: #f5f3e8;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 25px 0;
-    text-align: center;
-    border: 1px solid rgba(255, 107, 53, 0.4);
-    box-shadow: 0 6px 20px rgba(15, 37, 64, 0.3);
-}
-
-/* 和風装飾 */
-.wave-decoration {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 120px;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23f5f3e8" opacity="0.05"/></svg>') no-repeat center;
-    background-size: cover;
-    z-index: -1;
-}
-
-.page {
-    display: none;
-}
-
-.page.active {
-    display: block;
-}
-
-/* 日時選択ページ */
+/* カレンダー */
 .calendar-container {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
+    background: #1a2a42;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 25px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .calendar-header {
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
 }
 
 .calendar-nav {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 100%);
-    color: #f5f3e8;
+    background: #ff8c42;
+    color: #0a1628;
     border: none;
     padding: 12px 18px;
     border-radius: 50%;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: background-color 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
+    min-width: 44px;
 }
 
-.calendar-nav:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 100%);
-    transform: scale(1.1);
-    -webkit-transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.calendar-nav:hover,
+.calendar-nav:focus {
+    background: #e67a35;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
 }
 
 .month-year {
     font-size: 20px;
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
+    color: #ffffff;
 }
 
 .calendar-grid {
     display: grid;
+    display: -webkit-grid;
+    display: -ms-grid;
+    -webkit-grid-template-columns: repeat(7, 1fr);
+    -ms-grid-template-columns: repeat(7, 1fr);
     grid-template-columns: repeat(7, 1fr);
     gap: 8px;
 }
@@ -491,47 +437,44 @@ body::before {
 .calendar-day {
     aspect-ratio: 1;
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
-    color: #f5f3e8;
-    border: 1px solid rgba(255, 107, 53, 0.1);
-    box-shadow: 0 2px 8px rgba(15, 37, 64, 0.2);
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.4);
+    transition: all 0.2s ease;
+    background: #243552;
+    color: #ffffff;
+    border: 1px solid transparent;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .calendar-day:hover {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.15) 0%, rgba(245, 243, 232, 0.2) 100%);
-    transform: scale(1.05);
-    -webkit-transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(15, 37, 64, 0.3);
-    border-color: rgba(255, 107, 53, 0.3);
+    background: #2a3f5f;
+    border-color: #ff8c42;
 }
 
 .calendar-day.selected {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 100%);
-    color: #f5f3e8;
+    background: #ff8c42;
+    color: #0a1628;
     font-weight: bold;
-    border-color: #ff6b35;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: #ff8c42;
 }
 
 .calendar-day.disabled {
-    background: linear-gradient(135deg, rgba(44, 91, 135, 0.2) 0%, rgba(30, 58, 95, 0.3) 100%);
-    color: rgba(245, 243, 232, 0.4);
+    background: #0f1a2e;
+    color: #666;
     cursor: not-allowed;
-    border-color: rgba(44, 91, 135, 0.3);
+    border-color: #333;
 }
 
 .calendar-day.holiday {
-    background: linear-gradient(135deg, rgba(30, 58, 95, 0.3) 0%, rgba(44, 91, 135, 0.4) 100%);
-    color: rgba(245, 243, 232, 0.3);
+    background: #0f1a2e;
+    color: #666;
     position: relative;
 }
 
@@ -541,98 +484,91 @@ body::before {
     bottom: 2px;
     right: 2px;
     font-size: 8px;
-    color: #ff6b35;
+    color: #ff4757;
     font-weight: bold;
 }
 
 .calendar-day.disabled:hover {
     transform: none;
-    -webkit-transform: none;
-    box-shadow: 0 2px 8px rgba(15, 37, 64, 0.2);
+    border-color: #333;
 }
 
+/* 時間スロット */
 .time-slots {
     display: grid;
+    display: -webkit-grid;
+    display: -ms-grid;
+    -webkit-grid-template-columns: repeat(2, 1fr);
+    -ms-grid-template-columns: repeat(2, 1fr);
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-top: 25px;
 }
 
 .time-slot {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
+    background: #243552;
     padding: 15px;
-    border-radius: 15px;
+    border-radius: 8px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border: 2px solid transparent;
-    color: #f5f3e8;
+    color: #ffffff;
     font-weight: 500;
-    box-shadow: 0 4px 15px rgba(15, 37, 64, 0.2), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    min-height: 44px;
+    display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    align-items: center;
+    justify-content: center;
 }
 
 .time-slot:hover {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.12) 0%, rgba(245, 243, 232, 0.18) 100%);
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.2);
-    border-color: rgba(255, 107, 53, 0.3);
+    background: #2a3f5f;
+    border-color: #ff8c42;
 }
 
 .time-slot.selected {
-    border-color: #ff6b35;
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 107, 53, 0.15) 100%);
-    color: #ff6b35;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.2);
+    border-color: #ff8c42;
+    background: rgba(255, 140, 66, 0.2);
+    color: #ff8c42;
 }
 
 .time-slot.disabled {
-    background: linear-gradient(135deg, rgba(44, 91, 135, 0.15) 0%, rgba(30, 58, 95, 0.2) 100%);
-    color: rgba(245, 243, 232, 0.4);
+    background: #0f1a2e;
+    color: #666;
     cursor: not-allowed;
-    border-color: rgba(44, 91, 135, 0.3);
+    border-color: #333;
 }
 
 .next-button {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 50%, #cc4f28 100%);
-    color: #f5f3e8;
+    background: #ff8c42;
+    color: #0a1628;
     padding: 18px 35px;
-    border: none;
-    border-radius: 30px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
     width: 100%;
     margin-top: 25px;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
     display: none;
-    border: 1px solid rgba(245, 243, 232, 0.2);
 }
 
 .next-button.show {
     display: block;
 }
 
-.next-button:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 50%, #b3432a 100%);
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.next-button:hover,
+.next-button:focus {
+    background: #e67a35;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
 }
 
-/* 情報入力ページ */
+/* フォーム */
 .form-container {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
+    background: #1a2a42;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 25px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .form-group {
@@ -643,151 +579,138 @@ body::before {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
+    color: #ffffff;
 }
 
-.form-input {
+.form-input,
+.form-select {
     width: 100%;
     padding: 15px;
-    border: 2px solid rgba(255, 107, 53, 0.2);
-    border-radius: 12px;
+    border: 2px solid #ff8c42;
+    border-radius: 8px;
+    -webkit-border-radius: 8px;
     font-size: 16px;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
-    color: #f5f3e8;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    box-shadow: inset 0 2px 6px rgba(15, 37, 64, 0.2);
+    background: #243552;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.form-input:focus {
-    outline: none;
-    border-color: #ff6b35;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.12) 0%, rgba(245, 243, 232, 0.18) 100%);
-    box-shadow: inset 0 2px 6px rgba(15, 37, 64, 0.2), 0 0 0 3px rgba(255, 107, 53, 0.2);
+.form-input:focus,
+.form-select:focus {
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
+    border-color: #ff8c42;
+    background: #2a3f5f;
 }
 
 .form-input::placeholder {
-    color: rgba(245, 243, 232, 0.5);
+    color: #999;
+}
+
+.form-select option {
+    background: #243552;
+    color: #ffffff;
 }
 
 .add-companion-button {
     background: transparent;
-    color: #ff6b35;
-    border: 2px solid #ff6b35;
+    color: #ff8c42;
+    border: 2px solid #ff8c42;
     padding: 15px 25px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
     width: 100%;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
     margin-bottom: 25px;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
 }
 
-.add-companion-button:hover {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 100%);
-    color: #f5f3e8;
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+.add-companion-button:hover,
+.add-companion-button:focus {
+    background: #ff8c42;
+    color: #0a1628;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
 }
 
 .companion-section {
-    border-top: 2px solid rgba(255, 107, 53, 0.3);
+    border-top: 2px solid #ff8c42;
     padding-top: 25px;
     margin-top: 25px;
 }
 
 .companion-header {
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .companion-title {
     font-size: 18px;
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
+    color: #ffffff;
 }
 
 .remove-companion {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 100%);
-    color: #f5f3e8;
+    background: #ff4757;
+    color: #ffffff;
     border: none;
     padding: 10px 15px;
-    border-radius: 20px;
+    border-radius: 15px;
     cursor: pointer;
     font-size: 12px;
     font-weight: bold;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+    transition: background-color 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.remove-companion:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 100%);
-    transform: scale(1.05);
-    -webkit-transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-}
-
-.form-select {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid rgba(255, 107, 53, 0.2);
-    border-radius: 12px;
-    font-size: 16px;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
-    color: #f5f3e8;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    box-shadow: inset 0 2px 6px rgba(15, 37, 64, 0.2);
-}
-
-.form-select:focus {
-    outline: none;
-    border-color: #ff6b35;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.12) 0%, rgba(245, 243, 232, 0.18) 100%);
-    box-shadow: inset 0 2px 6px rgba(15, 37, 64, 0.2), 0 0 0 3px rgba(255, 107, 53, 0.2);
-}
-
-.form-select option {
-    background: #1e3a5f;
-    color: #f5f3e8;
+.remove-companion:hover,
+.remove-companion:focus {
+    background: #ff3742;
+    outline: 2px solid #ff4757;
+    outline-offset: 2px;
 }
 
 /* 確認ページ */
 .confirmation-section {
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
+    background: #1a2a42;
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-bottom: 25px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .confirmation-title {
     font-size: 20px;
     font-weight: bold;
-    color: #f5f3e8;
+    color: #ffffff;
     margin-bottom: 20px;
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
 }
 
 .confirmation-item {
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+    border-bottom: 1px solid rgba(255, 140, 66, 0.2);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .confirmation-item:last-child {
@@ -796,131 +719,317 @@ body::before {
 
 .confirmation-label {
     font-weight: bold;
-    color: #f5f3e8;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.4);
+    color: #ffffff;
 }
 
 .confirmation-value {
-    color: #ff6b35;
+    color: #ff8c42;
     font-weight: bold;
     text-align: right;
 }
 
-.back-button {
-    background: transparent;
-    color: #f5f3e8;
-    border: 2px solid #f5f3e8;
-    padding: 15px 25px;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    width: 48%;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    margin-right: 4%;
-    box-shadow: 0 4px 15px rgba(245, 243, 232, 0.1);
+.button-group {
+    display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 4%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-.back-button:hover {
-    background: linear-gradient(135deg, #f5f3e8 0%, rgba(245, 243, 232, 0.9) 100%);
-    color: #1e3a5f;
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(245, 243, 232, 0.2);
+.back-button {
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 15px 25px;
+    width: 48%;
+}
+
+.back-button:hover,
+.back-button:focus {
+    background: #ffffff;
+    color: #0a1628;
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
 }
 
 .confirm-button {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 50%, #cc4f28 100%);
-    color: #f5f3e8;
+    background: #ff8c42;
+    color: #0a1628;
     padding: 15px 25px;
     border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
     width: 48%;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.4s ease;
-    -webkit-transition: all 0.4s ease;
-    border: 1px solid rgba(245, 243, 232, 0.2);
 }
 
-.confirm-button:hover {
-    background: linear-gradient(135deg, #e55a2e 0%, #cc4f28 50%, #b3432a 100%);
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.button-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
+.confirm-button:hover,
+.confirm-button:focus {
+    background: #e67a35;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
 }
 
 /* 完了ページ */
 .completion-container {
     text-align: center;
-    background: linear-gradient(135deg, rgba(245, 243, 232, 0.08) 0%, rgba(245, 243, 232, 0.12) 100%);
+    background: #1a2a42;
     padding: 35px 25px;
-    border-radius: 20px;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 107, 53, 0.2);
-    box-shadow: 0 8px 32px rgba(15, 37, 64, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
+    border-radius: 10px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .completion-title {
     font-size: 26px;
     font-weight: bold;
-    color: #ff6b35;
+    color: #ff8c42;
     margin-bottom: 25px;
-    text-shadow: 2px 2px 4px rgba(15, 37, 64, 0.8);
 }
 
 .reservation-number {
     font-size: 28px;
     font-weight: bold;
-    color: #f5f3e8;
-    background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(255, 107, 53, 0.2) 100%);
+    color: #ffffff;
+    background: rgba(255, 140, 66, 0.1);
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 10px;
     margin-bottom: 25px;
-    border: 2px solid #ff6b35;
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(245, 243, 232, 0.1);
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.6);
+    border: 2px solid #ff8c42;
 }
 
 .completion-message {
     font-size: 16px;
-    color: #f5f3e8;
+    color: #ffffff;
     line-height: 1.8;
     margin-bottom: 25px;
-    text-shadow: 1px 1px 2px rgba(15, 37, 64, 0.4);
 }
 
 .check-reservation-button {
     background: transparent;
-    color: #ff6b35;
-    border: 2px solid #ff6b35;
+    color: #ff8c42;
+    border: 2px solid #ff8c42;
     padding: 15px 25px;
-    border-radius: 30px;
+    border-radius: 25px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     text-decoration: none;
     display: inline-block;
     margin-top: 20px;
-    transition: all 0.3s ease;
-    -webkit-transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
 }
 
-.check-reservation-button:hover {
-    background: linear-gradient(135deg, #ff6b35 0%, #e55a2e 100%);
-    color: #f5f3e8;
-    transform: translateY(-3px);
-    -webkit-transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+.check-reservation-button:hover,
+.check-reservation-button:focus {
+    background: #ff8c42;
+    color: #0a1628;
+    outline: 2px solid #ff8c42;
+    outline-offset: 2px;
+}
+
+/* 読み込み・エラー表示 */
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.loading::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: ''; }
+    40% { content: '.'; }
+    60% { content: '..'; }
+    80%, 100% { content: '...'; }
+}
+
+.error {
+    background: #2a1f1f;
+    color: #ff6b6b;
+    border: 2px solid #ff4757;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+    text-align: center;
+}
+
+.warning {
+    background: #2a2318;
+    color: #ffa726;
+    border: 2px solid #ff9800;
+    padding: 16px;
+    border-radius: 6px;
+    margin: 16px 0;
+}
+
+/* ページ表示制御 */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 100px 16px 16px;
+    }
+    
+    .header-content {
+        padding: 0 16px;
+        gap: 16px;
+    }
+    
+    .button-group {
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .back-button,
+    .confirm-button {
+        width: 100%;
+    }
+    
+    .time-slots {
+        -webkit-grid-template-columns: 1fr;
+        -ms-grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
+    }
+}
+
+/* アクセシビリティ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .menu-item,
+    .calendar-day,
+    .time-slot {
+        border-width: 3px;
+    }
+    
+    .menu-price,
+    .confirmation-value {
+        font-weight: 900;
+    }
+}
+
+/* タッチデバイス最適化 */
+@media (hover: none) and (pointer: coarse) {
+    .menu-item,
+    .calendar-day,
+    .time-slot,
+    .select-button,
+    .next-button,
+    .confirm-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .calendar-day {
+        aspect-ratio: auto;
+        height: 44px;
+    }
+}
+
+/* 旧Safari対応（CSS Grid非対応） */
+@supports not (display: grid) {
+    .calendar-grid {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
+    
+    .calendar-day {
+        width: calc(100% / 7);
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    
+    .time-slots {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-wrap: wrap;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
+    
+    .time-slot {
+        width: calc(50% - 6px);
+        margin: 3px;
+    }
+}
+
+/* 高解像度ディスプレイ対応 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .shop-photo,
+    .header-logo img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* 印刷対応 */
+@media print {
+    .main-header,
+    .calendar-nav,
+    .select-button,
+    .next-button,
+    .confirm-button,
+    .back-button {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+}
+
+/* その他のブラウザ対応 */
+iframe {
+    border: none;
+    width: 100%;
+    height: auto;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        color-scheme: dark;
+    }
 }
