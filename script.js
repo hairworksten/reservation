@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ロゴ画像の表示制御（Safari対応）
 function initLogoDisplay() {
-    const logoImg = document.querySelector('.header-logo img');
+    const logoImg = document.querySelector('.header-logo .logo-image') || document.querySelector('.header-logo img');
     const logoContainer = document.querySelector('.header-logo');
     
     if (logoImg && logoContainer) {
