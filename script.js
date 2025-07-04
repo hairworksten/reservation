@@ -10,8 +10,8 @@ let menus = {};
 let holidays = [];
 let reservations = [];
 
-// Cloud Run API設定
-const API_BASE_URL = 'https://your-cloud-run-service-url.run.app/api'; // 実際のCloud Run URLに変更
+// Cloud Run API設定 - 実際のデプロイ時にURLを変更
+const API_BASE_URL = 'https://your-cloud-run-service-url.run.app/api';
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -118,15 +118,8 @@ async function loadHolidays() {
 // デフォルト休業日（日曜日）
 function loadDefaultHolidays() {
     holidays = [
-        '2025-07-06', // 日曜日
-        '2025-07-13', // 日曜日
-        '2025-07-20', // 日曜日
-        '2025-07-27', // 日曜日
-        '2025-08-03', // 日曜日
-        '2025-08-10', // 日曜日
-        '2025-08-17', // 日曜日
-        '2025-08-24', // 日曜日
-        '2025-08-31', // 日曜日
+        '2025-07-06', '2025-07-13', '2025-07-20', '2025-07-27',
+        '2025-08-03', '2025-08-10', '2025-08-17', '2025-08-24', '2025-08-31'
     ];
 }
 
@@ -154,40 +147,7 @@ async function loadReservations(date) {
         
     } catch (error) {
         console.error('予約データの読み込みに失敗しました:', error);
-        // エラーの場合は空の配列を設定
         reservations = [];
-    }
-}
-
-// Cloud Run APIに予約データを送信
-async function saveReservationToAPI(reservationData) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/reservations`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                reservation: reservationData
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error(result.message || '予約の保存に失敗しました');
-        }
-        
-        return result;
-        
-    } catch (error) {
-        console.error('予約データの送信に失敗しました:', error);
-        throw error;
     }
 }
 
@@ -243,7 +203,7 @@ async function checkReservationNumberExists(reservationNumber) {
         
     } catch (error) {
         console.error('予約番号の確認に失敗しました:', error);
-        return false; // エラーの場合は重複なしとして処理
+        return false;
     }
 }
 
@@ -282,14 +242,12 @@ function displayMenus() {
 
 // メニュー選択
 function selectMenu(menuName, menuData) {
-    // 他のメニューの選択を解除
     document.querySelectorAll('.menu-item').forEach(item => {
         item.classList.remove('selected');
         const details = item.querySelector('.menu-details');
         if (details) details.classList.remove('show');
     });
     
-    // 選択されたメニューを表示
     event.currentTarget.classList.add('selected');
     const details = document.getElementById(`details-${menuName}`);
     details.classList.add('show');
@@ -339,43 +297,7 @@ function goToCompletionPage() {
 }
 
 function goToReservationCheck() {
-    // 予約確認ページへの遷移（後で実装）
     alert('予約確認ページは後日実装予定です。');
-}
-
-// 休業日の読み込み
-async function loadHolidays() {
-    try {
-        const response = await fetch(`${FIRESTORE_BASE_URL}/holidays`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Firestoreのデータ形式から変換
-        holidays = [];
-        if (data.documents) {
-            data.documents.forEach(doc => {
-                const fields = doc.fields;
-                const date = fields.date?.stringValue;
-                if (date) {
-                    holidays.push(date);
-                }
-            });
-        }
-        
-        // 休業日が空の場合はデフォルト休業日を使用（日曜日）
-        if (holidays.length === 0) {
-            console.warn('Firestoreから休業日を取得できませんでした。デフォルト休業日を使用します。');
-            loadDefaultHolidays();
-        }
-        
-    } catch (error) {
-        console.error('休業日の読み込みに失敗しました:', error);
-        loadDefaultHolidays();
-    }
 }
 
 // カレンダーの初期化
@@ -429,16 +351,11 @@ function updateCalendar() {
         const cellDate = new Date(currentYear, currentMonth, day);
         const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        // 過去の日付や今日は無効
         if (cellDate < tomorrow) {
             dayCell.classList.add('disabled');
-        } 
-        // 休業日をチェック
-        else if (holidays.includes(dateString)) {
+        } else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
-        } 
-        // 1ヶ月後を超える日付は無効
-        else {
+        } else {
             const oneMonthLater = new Date(today);
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
             if (cellDate > oneMonthLater) {
@@ -464,7 +381,6 @@ function changeMonth(direction) {
     }
     updateCalendar();
     
-    // 時間スロットを非表示
     document.getElementById('time-slots-container').style.display = 'none';
     document.getElementById('datetime-next-button').classList.remove('show');
     selectedDate = null;
@@ -473,17 +389,14 @@ function changeMonth(direction) {
 
 // 日付選択
 function selectDate(dateString) {
-    // 他の日付の選択を解除
     document.querySelectorAll('.calendar-day.selected').forEach(day => {
         day.classList.remove('selected');
     });
     
-    // 選択された日付をハイライト
     event.target.classList.add('selected');
     selectedDate = dateString;
     selectedTime = null;
     
-    // 時間スロットを表示
     displayTimeSlots(dateString);
 }
 
@@ -496,7 +409,6 @@ async function displayTimeSlots(date) {
     timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
     
     try {
-        // 既存の予約を確認
         await loadReservations(date);
         
         const availableTimes = ['10:30', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
@@ -507,7 +419,6 @@ async function displayTimeSlots(date) {
             timeSlot.className = 'time-slot';
             timeSlot.textContent = time;
             
-            // 予約済みかチェック
             const isBooked = reservations.some(reservation => 
                 reservation.date === date && 
                 reservation.Time === time && 
@@ -530,61 +441,15 @@ async function displayTimeSlots(date) {
     }
 }
 
-// 予約データの読み込み
-async function loadReservations(date) {
-    try {
-        // 特定の日付の予約を取得するクエリ
-        const response = await fetch(`${FIRESTORE_BASE_URL}/reservations?pageSize=1000`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Firestoreのデータ形式から変換
-        reservations = [];
-        if (data.documents) {
-            data.documents.forEach(doc => {
-                const fields = doc.fields;
-                
-                // 指定された日付の予約のみを抽出
-                const reservationDate = fields.date?.stringValue;
-                if (reservationDate === date) {
-                    reservations.push({
-                        id: doc.name.split('/').pop(),
-                        Menu: fields.Menu?.stringValue || '',
-                        "Name-f": fields["Name-f"]?.stringValue || '',
-                        "Name-s": fields["Name-s"]?.stringValue || '',
-                        Time: fields.Time?.stringValue || '',
-                        WorkTime: parseInt(fields.WorkTime?.integerValue || fields.WorkTime?.doubleValue || 0),
-                        date: reservationDate,
-                        mail: fields.mail?.stringValue || '',
-                        states: parseInt(fields.states?.integerValue || fields.states?.doubleValue || 0)
-                    });
-                }
-            });
-        }
-        
-    } catch (error) {
-        console.error('予約データの読み込みに失敗しました:', error);
-        // エラーの場合は空の配列を設定
-        reservations = [];
-    }
-}
-
 // 時間選択
 function selectTime(time) {
-    // 他の時間の選択を解除
     document.querySelectorAll('.time-slot.selected').forEach(slot => {
         slot.classList.remove('selected');
     });
     
-    // 選択された時間をハイライト
     event.target.classList.add('selected');
     selectedTime = time;
     
-    // 次へボタンを表示
     document.getElementById('datetime-next-button').classList.add('show');
 }
 
@@ -635,7 +500,6 @@ function removeCompanion(companionId) {
         companions.splice(companionIndex, 1);
         document.getElementById(companionId).remove();
         
-        // 番号を振り直し
         companions.forEach((companion, index) => {
             const companionDiv = document.getElementById(companion.id);
             companionDiv.querySelector('.companion-title').textContent = `同行者 ${index + 1}`;
@@ -660,7 +524,6 @@ function validateInfoForm() {
         return false;
     }
     
-    // 同行者の検証
     for (let i = 0; i < companions.length; i++) {
         const companion = companions[i];
         const menu = document.getElementById(`${companion.id}-menu`).value;
@@ -757,7 +620,6 @@ async function generateReservationNumber() {
 // 予約送信
 async function submitReservation() {
     try {
-        // 最終的な予約確認
         await loadReservations(selectedDate);
         
         const isStillAvailable = !reservations.some(reservation => 
@@ -772,10 +634,8 @@ async function submitReservation() {
             return;
         }
         
-        // 予約番号生成（重複チェック付き）
         const mainReservationNumber = await generateReservationNumber();
         
-        // 代表者の予約データ
         const mainReservation = {
             reservationNumber: mainReservationNumber,
             Menu: selectedMenu.name,
@@ -788,7 +648,6 @@ async function submitReservation() {
             states: 0
         };
         
-        // 同行者の予約データ
         const companionReservations = [];
         for (const companion of companions) {
             const companionReservationNumber = await generateReservationNumber();
@@ -805,10 +664,8 @@ async function submitReservation() {
             });
         }
         
-        // Cloud Run APIに送信
         await saveMultipleReservations([mainReservation, ...companionReservations]);
         
-        // 完了画面に遷移
         displayCompletionDetails(mainReservation, companionReservations);
         goToCompletionPage();
         
