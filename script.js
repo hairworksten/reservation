@@ -1169,3 +1169,13 @@ function showConfirm(title, message, onConfirm) {
 function closeConfirmModal() {
     confirmModal.classList.remove('active');
 }
+
+// メニューフォームリセット
+function resetMenuForm() {
+    menuNameInput.value = '';
+    menuTextInput.value = '';
+    menuWorktimeInput.value = '';
+    menuFareInput.value = '';
+    addMenuBtn.textContent = '追加';
+    addMenuBtn.onclick = handleAddMenu;
+}
