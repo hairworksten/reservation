@@ -1,1 +1,649 @@
+// グローバル変数
+let currentPage = 'top-page';
+let selectedMenu = null;
+let selectedDate = null;
+let selectedTime = null;
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let companions = [];
+let menus = {};
+let holidays = [];
+let reservations = [];
 
+// Firestore設定（実際の設定は環境変数から取得）
+const FIRESTORE_API_KEY = 'YOUR_API_KEY_HERE'; // 実際の運用時は環境変数から
+const FIRESTORE_PROJECT_ID = 'YOUR_PROJECT_ID_HERE'; // 実際の運用時は環境変数から
+
+// 初期化
+document.addEventListener('DOMContentLoaded', function() {
+    loadMenus();
+    initCalendar();
+});
+
+// メニューデータの読み込み
+async function loadMenus() {
+    try {
+        // 実際の運用時はFirestoreから取得
+        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/menus`);
+        // const data = await response.json();
+        
+        // デモデータ
+        menus = {
+            'カット': {
+                fare: 4000,
+                text: '髪の長さや髪質に合わせて、お客様のご希望に沿ったカットを致します。',
+                worktime: 60
+            },
+            'カラー': {
+                fare: 6000,
+                text: '豊富なカラーバリエーションから、お客様にぴったりの色をご提案します。',
+                worktime: 90
+            },
+            'パーマ': {
+                fare: 7000,
+                text: 'ダメージを抑えながら、理想のカールを実現します。',
+                worktime: 120
+            },
+            'カット+カラー': {
+                fare: 9000,
+                text: 'カットとカラーをセットで行います。お得なセットメニューです。',
+                worktime: 150
+            },
+            'トリートメント': {
+                fare: 3000,
+                text: '髪の内部から補修し、健康な髪に導きます。',
+                worktime: 45
+            }
+        };
+        
+        displayMenus();
+    } catch (error) {
+        console.error('メニューの読み込みに失敗しました:', error);
+        document.getElementById('menu-grid').innerHTML = '<div class="error">メニューの読み込みに失敗しました。</div>';
+    }
+}
+
+// メニューの表示
+function displayMenus() {
+    const menuGrid = document.getElementById('menu-grid');
+    menuGrid.innerHTML = '';
+    
+    Object.entries(menus).forEach(([menuName, menuData]) => {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'menu-item';
+        menuItem.onclick = () => selectMenu(menuName, menuData);
+        
+        menuItem.innerHTML = `
+            <div class="menu-header">
+                <div class="menu-name">${menuName}</div>
+                <div class="menu-price">¥${menuData.fare.toLocaleString()}</div>
+            </div>
+            <div class="menu-details" id="details-${menuName}">
+                <div class="menu-description">${menuData.text}</div>
+                <div class="menu-worktime">施術時間：約${menuData.worktime}分</div>
+                <div class="reservation-notes">
+                    <h4>予約に関する注意事項</h4>
+                    <ul>
+                        <li>予約受付締切：前日の23:59まで</li>
+                        <li>キャンセル締切：1時間前まで</li>
+                    </ul>
+                </div>
+                <button class="select-button" onclick="selectMenuAndGoNext('${menuName}')">このメニューを選択</button>
+            </div>
+        `;
+        
+        menuGrid.appendChild(menuItem);
+    });
+}
+
+// メニュー選択
+function selectMenu(menuName, menuData) {
+    // 他のメニューの選択を解除
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('selected');
+        const details = item.querySelector('.menu-details');
+        if (details) details.classList.remove('show');
+    });
+    
+    // 選択されたメニューを表示
+    event.currentTarget.classList.add('selected');
+    const details = document.getElementById(`details-${menuName}`);
+    details.classList.add('show');
+    
+    selectedMenu = { name: menuName, ...menuData };
+}
+
+// メニュー選択して次のページへ
+function selectMenuAndGoNext(menuName) {
+    selectedMenu = { name: menuName, ...menus[menuName] };
+    goToDatetimePage();
+}
+
+// ページ遷移
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+    currentPage = pageId;
+}
+
+function goToDatetimePage() {
+    showPage('datetime-page');
+    loadHolidays();
+    updateCalendar();
+}
+
+function goToInfoPage() {
+    if (!selectedDate || !selectedTime) {
+        alert('日時を選択してください。');
+        return;
+    }
+    showPage('info-page');
+}
+
+function goToConfirmPage() {
+    if (!validateInfoForm()) {
+        return;
+    }
+    showPage('confirm-page');
+    displayConfirmationDetails();
+}
+
+function goToCompletionPage() {
+    showPage('completion-page');
+}
+
+function goToReservationCheck() {
+    // 予約確認ページへの遷移（後で実装）
+    alert('予約確認ページは後日実装予定です。');
+}
+
+// 休業日の読み込み
+async function loadHolidays() {
+    try {
+        // 実際の運用時はFirestoreから取得
+        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/holidays`);
+        // const data = await response.json();
+        
+        // デモデータ
+        holidays = [
+            '2025-07-06', // 日曜日
+            '2025-07-13', // 日曜日
+            '2025-07-20', // 日曜日
+            '2025-07-27', // 日曜日
+        ];
+    } catch (error) {
+        console.error('休業日の読み込みに失敗しました:', error);
+        holidays = [];
+    }
+}
+
+// カレンダーの初期化
+function initCalendar() {
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    updateCalendar();
+}
+
+// カレンダーの更新
+function updateCalendar() {
+    const monthYear = document.getElementById('month-year');
+    const calendarGrid = document.getElementById('calendar-grid');
+    
+    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    monthYear.textContent = `${currentYear}年 ${monthNames[currentMonth]}`;
+    
+    calendarGrid.innerHTML = '';
+    
+    // 曜日ヘッダー
+    const dayHeaders = ['日', '月', '火', '水', '木', '金', '土'];
+    dayHeaders.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.textContent = day;
+        dayHeader.style.fontWeight = 'bold';
+        dayHeader.style.color = '#e74c3c';
+        dayHeader.style.textAlign = 'center';
+        dayHeader.style.padding = '10px 0';
+        calendarGrid.appendChild(dayHeader);
+    });
+    
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // 空白セル
+    for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        calendarGrid.appendChild(emptyCell);
+    }
+    
+    // 日付セル
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = 'calendar-day';
+        dayCell.textContent = day;
+        
+        const cellDate = new Date(currentYear, currentMonth, day);
+        const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // 過去の日付や今日は無効
+        if (cellDate < tomorrow) {
+            dayCell.classList.add('disabled');
+        } 
+        // 休業日をチェック
+        else if (holidays.includes(dateString)) {
+            dayCell.classList.add('disabled');
+        } 
+        // 1ヶ月後を超える日付は無効
+        else {
+            const oneMonthLater = new Date(today);
+            oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+            if (cellDate > oneMonthLater) {
+                dayCell.classList.add('disabled');
+            } else {
+                dayCell.onclick = () => selectDate(dateString);
+            }
+        }
+        
+        calendarGrid.appendChild(dayCell);
+    }
+}
+
+// 月変更
+function changeMonth(direction) {
+    currentMonth += direction;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    } else if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    updateCalendar();
+    
+    // 時間スロットを非表示
+    document.getElementById('time-slots-container').style.display = 'none';
+    document.getElementById('datetime-next-button').classList.remove('show');
+    selectedDate = null;
+    selectedTime = null;
+}
+
+// 日付選択
+function selectDate(dateString) {
+    // 他の日付の選択を解除
+    document.querySelectorAll('.calendar-day.selected').forEach(day => {
+        day.classList.remove('selected');
+    });
+    
+    // 選択された日付をハイライト
+    event.target.classList.add('selected');
+    selectedDate = dateString;
+    selectedTime = null;
+    
+    // 時間スロットを表示
+    displayTimeSlots(dateString);
+}
+
+// 時間スロットの表示
+async function displayTimeSlots(date) {
+    const timeSlotsContainer = document.getElementById('time-slots-container');
+    const timeSlots = document.getElementById('time-slots');
+    
+    timeSlotsContainer.style.display = 'block';
+    timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
+    
+    try {
+        // 既存の予約を確認
+        await loadReservations(date);
+        
+        const availableTimes = ['10:30', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+        timeSlots.innerHTML = '';
+        
+        availableTimes.forEach(time => {
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            timeSlot.textContent = time;
+            
+            // 予約済みかチェック
+            const isBooked = reservations.some(reservation => 
+                reservation.date === date && 
+                reservation.Time === time && 
+                reservation.states === 0
+            );
+            
+            if (isBooked) {
+                timeSlot.classList.add('disabled');
+                timeSlot.textContent += ' ✖️';
+            } else {
+                timeSlot.textContent += ' ⭕';
+                timeSlot.onclick = () => selectTime(time);
+            }
+            
+            timeSlots.appendChild(timeSlot);
+        });
+    } catch (error) {
+        console.error('予約状況の確認に失敗しました:', error);
+        timeSlots.innerHTML = '<div class="error">予約状況の確認に失敗しました。</div>';
+    }
+}
+
+// 予約データの読み込み
+async function loadReservations(date) {
+    try {
+        // 実際の運用時はFirestoreから取得
+        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/reservations`);
+        // const data = await response.json();
+        
+        // デモデータ
+        reservations = [
+            {
+                Menu: "カット",
+                "Name-f": "田中",
+                "Name-s": "太郎",
+                Time: "11:00",
+                WorkTime: 60,
+                date: "2025-07-05",
+                mail: "tanaka@example.com",
+                states: 0
+            },
+            {
+                Menu: "カラー",
+                "Name-f": "佐藤",
+                "Name-s": "花子",
+                Time: "14:00",
+                WorkTime: 90,
+                date: "2025-07-05",
+                mail: "sato@example.com",
+                states: 0
+            }
+        ];
+    } catch (error) {
+        console.error('予約データの読み込みに失敗しました:', error);
+        reservations = [];
+    }
+}
+
+// 時間選択
+function selectTime(time) {
+    // 他の時間の選択を解除
+    document.querySelectorAll('.time-slot.selected').forEach(slot => {
+        slot.classList.remove('selected');
+    });
+    
+    // 選択された時間をハイライト
+    event.target.classList.add('selected');
+    selectedTime = time;
+    
+    // 次へボタンを表示
+    document.getElementById('datetime-next-button').classList.add('show');
+}
+
+// 同行者追加
+function addCompanion() {
+    if (companions.length >= 3) {
+        alert('同行者は最大3人まで追加できます。');
+        return;
+    }
+    
+    const companionId = `companion-${companions.length}`;
+    companions.push({ id: companionId, menu: '', lastName: '', firstName: '' });
+    
+    const companionsContainer = document.getElementById('companions-container');
+    const companionDiv = document.createElement('div');
+    companionDiv.className = 'companion-section';
+    companionDiv.id = companionId;
+    
+    companionDiv.innerHTML = `
+        <div class="companion-header">
+            <div class="companion-title">同行者 ${companions.length}</div>
+            <button class="remove-companion" onclick="removeCompanion('${companionId}')">削除</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">メニュー *</label>
+            <select class="form-select" id="${companionId}-menu" required>
+                <option value="">メニューを選択</option>
+                ${Object.keys(menus).map(menu => `<option value="${menu}">${menu} - ¥${menus[menu].fare.toLocaleString()}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">姓 *</label>
+            <input type="text" class="form-input" id="${companionId}-last-name" placeholder="例：田中" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">名 *</label>
+            <input type="text" class="form-input" id="${companionId}-first-name" placeholder="例：花子" required>
+        </div>
+    `;
+    
+    companionsContainer.appendChild(companionDiv);
+}
+
+// 同行者削除
+function removeCompanion(companionId) {
+    const companionIndex = companions.findIndex(c => c.id === companionId);
+    if (companionIndex > -1) {
+        companions.splice(companionIndex, 1);
+        document.getElementById(companionId).remove();
+        
+        // 番号を振り直し
+        companions.forEach((companion, index) => {
+            const companionDiv = document.getElementById(companion.id);
+            companionDiv.querySelector('.companion-title').textContent = `同行者 ${index + 1}`;
+        });
+    }
+}
+
+// 入力フォームの検証
+function validateInfoForm() {
+    const lastName = document.getElementById('last-name').value.trim();
+    const firstName = document.getElementById('first-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    
+    if (!lastName || !firstName || !email) {
+        alert('必須項目を入力してください。');
+        return false;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('正しいメールアドレスを入力してください。');
+        return false;
+    }
+    
+    // 同行者の検証
+    for (let i = 0; i < companions.length; i++) {
+        const companion = companions[i];
+        const menu = document.getElementById(`${companion.id}-menu`).value;
+        const lastName = document.getElementById(`${companion.id}-last-name`).value.trim();
+        const firstName = document.getElementById(`${companion.id}-first-name`).value.trim();
+        
+        if (!menu || !lastName || !firstName) {
+            alert(`同行者 ${i + 1} の情報を入力してください。`);
+            return false;
+        }
+        
+        companion.menu = menu;
+        companion.lastName = lastName;
+        companion.firstName = firstName;
+    }
+    
+    return true;
+}
+
+// 確認画面の詳細表示
+function displayConfirmationDetails() {
+    const confirmationDetails = document.getElementById('confirmation-details');
+    
+    const lastName = document.getElementById('last-name').value.trim();
+    const firstName = document.getElementById('first-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    
+    let totalPrice = selectedMenu.fare;
+    companions.forEach(companion => {
+        totalPrice += menus[companion.menu].fare;
+    });
+    
+    let html = `
+        <div class="confirmation-item">
+            <span class="confirmation-label">予約日時</span>
+            <span class="confirmation-value">${selectedDate} ${selectedTime}</span>
+        </div>
+        <div class="confirmation-item">
+            <span class="confirmation-label">代表者メニュー</span>
+            <span class="confirmation-value">${selectedMenu.name} (¥${selectedMenu.fare.toLocaleString()})</span>
+        </div>
+        <div class="confirmation-item">
+            <span class="confirmation-label">代表者お名前</span>
+            <span class="confirmation-value">${lastName} ${firstName}</span>
+        </div>
+        <div class="confirmation-item">
+            <span class="confirmation-label">メールアドレス</span>
+            <span class="confirmation-value">${email}</span>
+        </div>
+    `;
+    
+    companions.forEach((companion, index) => {
+        html += `
+            <div class="confirmation-item">
+                <span class="confirmation-label">同行者${index + 1}メニュー</span>
+                <span class="confirmation-value">${companion.menu} (¥${menus[companion.menu].fare.toLocaleString()})</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">同行者${index + 1}お名前</span>
+                <span class="confirmation-value">${companion.lastName} ${companion.firstName}</span>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="confirmation-item" style="border-top: 2px solid #e74c3c; padding-top: 15px; margin-top: 15px;">
+            <span class="confirmation-label">合計金額</span>
+            <span class="confirmation-value">¥${totalPrice.toLocaleString()}</span>
+        </div>
+    `;
+    
+    confirmationDetails.innerHTML = html;
+}
+
+// 予約送信
+async function submitReservation() {
+    try {
+        // 最終的な予約確認
+        await loadReservations(selectedDate);
+        
+        const isStillAvailable = !reservations.some(reservation => 
+            reservation.date === selectedDate && 
+            reservation.Time === selectedTime && 
+            reservation.states === 0
+        );
+        
+        if (!isStillAvailable) {
+            alert('申し訳ございません。選択された時間は既に予約が入りました。別の時間をお選びください。');
+            goToDatetimePage();
+            return;
+        }
+        
+        // 予約番号生成
+        const reservationNumber = generateReservationNumber();
+        
+        // 代表者の予約データ
+        const mainReservation = {
+            reservationNumber: reservationNumber,
+            Menu: selectedMenu.name,
+            "Name-f": document.getElementById('last-name').value.trim(),
+            "Name-s": document.getElementById('first-name').value.trim(),
+            Time: selectedTime,
+            WorkTime: selectedMenu.worktime,
+            date: selectedDate,
+            mail: document.getElementById('email').value.trim(),
+            states: 0
+        };
+        
+        // 同行者の予約データ
+        const companionReservations = companions.map(companion => ({
+            reservationNumber: generateReservationNumber(),
+            Menu: companion.menu,
+            "Name-f": companion.lastName,
+            "Name-s": companion.firstName,
+            Time: selectedTime,
+            WorkTime: menus[companion.menu].worktime,
+            date: selectedDate,
+            mail: "同行者",
+            states: 0
+        }));
+        
+        // 実際の運用時はFirestoreに保存
+        // await saveToFirestore([mainReservation, ...companionReservations]);
+        
+        // 完了画面に遷移
+        displayCompletionDetails(mainReservation, companionReservations);
+        goToCompletionPage();
+        
+    } catch (error) {
+        console.error('予約の送信に失敗しました:', error);
+        alert('予約の送信に失敗しました。もう一度お試しください。');
+    }
+}
+
+// 予約番号生成
+function generateReservationNumber() {
+    return Math.floor(Math.random() * 90000000) + 10000000;
+}
+
+// 完了画面の詳細表示
+function displayCompletionDetails(mainReservation, companionReservations) {
+    document.getElementById('completion-reservation-number').textContent = `予約番号: ${mainReservation.reservationNumber}`;
+    
+    let html = `
+        <div class="confirmation-section">
+            <div class="confirmation-title">店舗情報</div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">店舗名</span>
+                <span class="confirmation-value">Hair Works天</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">住所</span>
+                <span class="confirmation-value">〒420-0817 静岡県静岡市葵区東静岡１丁目１−５７</span>
+            </div>
+        </div>
+        
+        <div class="confirmation-section">
+            <div class="confirmation-title">予約詳細</div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">予約日時</span>
+                <span class="confirmation-value">${selectedDate} ${selectedTime}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">メニュー</span>
+                <span class="confirmation-value">${mainReservation.Menu}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">お名前</span>
+                <span class="confirmation-value">${mainReservation["Name-f"]} ${mainReservation["Name-s"]}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">メールアドレス</span>
+                <span class="confirmation-value">${mainReservation.mail}</span>
+            </div>
+        </div>
+    `;
+    
+    if (companionReservations.length > 0) {
+        html += '<div class="confirmation-section"><div class="confirmation-title">同行者情報</div>';
+        companionReservations.forEach((companion, index) => {
+            html += `
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}</span>
+                    <span class="confirmation-value">${companion["Name-f"]} ${companion["Name-s"]} (${companion.Menu}) - 予約番号: ${companion.reservationNumber}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    document.getElementById('completion-details').innerHTML = html;
+}
