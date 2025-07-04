@@ -17,6 +17,8 @@ const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app
 document.addEventListener('DOMContentLoaded', function() {
     loadMenus();
     initCalendar();
+    // 事前に休業日データを取得しておく（ページ切り替えを高速化）
+    loadHolidays();
 });
 
 // Cloud Run APIからメニューデータの読み込み
@@ -63,6 +65,7 @@ async function loadMenus() {
 // Cloud Run APIから休業日の読み込み
 async function loadHolidays() {
     try {
+        console.log('休業日データを取得中...');
         const response = await fetch(`${API_BASE_URL}/holidays`, {
             method: 'GET',
             headers: {
@@ -85,8 +88,37 @@ async function loadHolidays() {
         
     } catch (error) {
         console.error('休業日の読み込みに失敗しました:', error);
-        // エラーの場合は空の配列を使用（app.pyで日曜日は自動処理される）
+        // エラーの場合は空の配列を使用
         holidays = [];
+        
+        // ユーザーに分かりやすいエラーメッセージを表示
+        if (currentPage === 'datetime-page') {
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = `
+                <div class="error">
+                    <h4>休業日データの取得に失敗しました</h4>
+                    <p>エラー: ${error.message}</p>
+                    <button onclick="retryLoadHolidays()" class="select-button" style="margin-top: 15px;">再試行</button>
+                </div>
+            `;
+        }
+        
+        throw error; // エラーを再スローして呼び出し元で処理
+    }
+}
+
+// 休業日データの再取得（エラー時の再試行用）
+async function retryLoadHolidays() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    calendarGrid.innerHTML = '<div class="loading">休業日データを再取得しています...</div>';
+    
+    try {
+        await loadHolidays();
+        updateCalendar();
+        console.log('休業日データの再取得が成功しました');
+    } catch (error) {
+        console.error('休業日データの再取得に失敗しました:', error);
+        // loadHolidays() 内でエラー表示済み
     }
 }
 
@@ -237,9 +269,9 @@ function selectMenu(menuName, menuData) {
 }
 
 // メニュー選択して次のページへ
-function selectMenuAndGoNext(menuName) {
+async function selectMenuAndGoNext(menuName) {
     selectedMenu = { name: menuName, ...menus[menuName] };
-    goToDatetimePage();
+    await goToDatetimePage(); // 非同期で日時選択ページへ
 }
 
 // ページ遷移
@@ -251,10 +283,30 @@ function showPage(pageId) {
     currentPage = pageId;
 }
 
-function goToDatetimePage() {
+async function goToDatetimePage() {
     showPage('datetime-page');
-    loadHolidays();
-    updateCalendar();
+    
+    // ローディング表示
+    const calendarGrid = document.getElementById('calendar-grid');
+    const timeSlotsContainer = document.getElementById('time-slots-container');
+    const nextButton = document.getElementById('datetime-next-button');
+    
+    calendarGrid.innerHTML = '<div class="loading">カレンダーを読み込んでいます...</div>';
+    timeSlotsContainer.style.display = 'none';
+    nextButton.classList.remove('show');
+    
+    try {
+        // 休業日データを取得
+        await loadHolidays();
+        
+        // カレンダーを更新
+        updateCalendar();
+        
+        console.log('日時選択ページの初期化が完了しました');
+    } catch (error) {
+        console.error('日時選択ページの初期化に失敗しました:', error);
+        calendarGrid.innerHTML = '<div class="error">カレンダーの読み込みに失敗しました。再度お試しください。</div>';
+    }
 }
 
 function goToInfoPage() {
@@ -359,11 +411,11 @@ function updateCalendar() {
         calendarGrid.appendChild(dayCell);
     }
     
-    console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件`);
+    console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件 (${holidays.join(', ')})`);
 }
 
 // 月変更
-function changeMonth(direction) {
+async function changeMonth(direction) {
     currentMonth += direction;
     if (currentMonth > 11) {
         currentMonth = 0;
@@ -372,12 +424,29 @@ function changeMonth(direction) {
         currentMonth = 11;
         currentYear--;
     }
-    updateCalendar();
     
+    // 選択状態をリセット
     document.getElementById('time-slots-container').style.display = 'none';
     document.getElementById('datetime-next-button').classList.remove('show');
     selectedDate = null;
     selectedTime = null;
+    
+    // ローディング表示
+    const calendarGrid = document.getElementById('calendar-grid');
+    calendarGrid.innerHTML = '<div class="loading">カレンダーを更新しています...</div>';
+    
+    try {
+        // 休業日データを再取得
+        await loadHolidays();
+        
+        // カレンダーを更新
+        updateCalendar();
+        
+        console.log(`${currentYear}年${currentMonth + 1}月のカレンダーを更新しました`);
+    } catch (error) {
+        console.error('カレンダー更新に失敗しました:', error);
+        calendarGrid.innerHTML = '<div class="error">カレンダーの更新に失敗しました。再度お試しください。</div>';
+    }
 }
 
 // 日付選択
