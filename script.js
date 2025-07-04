@@ -10,9 +10,8 @@ let menus = {};
 let holidays = [];
 let reservations = [];
 
-// Cloud Run API設定 - 実際のDeployされたURLに変更してください
-// 例: 'https://hair-works-api-123456789-an.a.run.app/api'
-const API_BASE_URL = 'https://hair-works-api-knn6yth7rq-an.a.run.app/api';
+// Cloud Run API設定 - 最新のDeployされたURLに更新
+const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app/api';
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -22,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Cloud Run APIからメニューデータの読み込み
 async function loadMenus() {
+    const menuGrid = document.getElementById('menu-grid');
+    menuGrid.innerHTML = '<div class="loading">メニューを読み込んでいます...</div>';
+    
     try {
         const response = await fetch(`${API_BASE_URL}/menus`, {
             method: 'GET',
@@ -38,48 +40,24 @@ async function loadMenus() {
         
         if (data.success && data.menus) {
             menus = data.menus;
+            console.log('メニューデータを正常に読み込みました:', menus);
         } else {
             throw new Error('メニューデータの形式が正しくありません');
         }
         
         displayMenus();
+        
     } catch (error) {
         console.error('メニューの読み込みに失敗しました:', error);
-        console.log('デモデータを使用します。');
-        loadDemoMenus();
-        displayMenus();
+        menuGrid.innerHTML = `
+            <div class="error">
+                <h3>メニューの読み込みに失敗しました</h3>
+                <p>エラー: ${error.message}</p>
+                <p>Cloud Run APIに接続できません。管理者にお問い合わせください。</p>
+                <button onclick="loadMenus()" class="select-button" style="margin-top: 15px;">再試行</button>
+            </div>
+        `;
     }
-}
-
-// デモメニューデータ
-function loadDemoMenus() {
-    menus = {
-        'カット': {
-            fare: 4000,
-            text: '髪の長さや髪質に合わせて、お客様のご希望に沿ったカットを致します。',
-            worktime: 60
-        },
-        'カラー': {
-            fare: 6000,
-            text: '豊富なカラーバリエーションから、お客様にぴったりの色をご提案します。',
-            worktime: 90
-        },
-        'パーマ': {
-            fare: 7000,
-            text: 'ダメージを抑えながら、理想のカールを実現します。',
-            worktime: 120
-        },
-        'カット+カラー': {
-            fare: 9000,
-            text: 'カットとカラーをセットで行います。お得なセットメニューです。',
-            worktime: 150
-        },
-        'トリートメント': {
-            fare: 3000,
-            text: '髪の内部から補修し、健康な髪に導きます。',
-            worktime: 45
-        }
-    };
 }
 
 // Cloud Run APIから休業日の読み込み
@@ -100,6 +78,7 @@ async function loadHolidays() {
         
         if (data.success && Array.isArray(data.holidays)) {
             holidays = data.holidays;
+            console.log('休業日データを正常に読み込みました:', holidays);
         } else {
             throw new Error('休業日データの形式が正しくありません');
         }
@@ -112,11 +91,12 @@ async function loadHolidays() {
         
     } catch (error) {
         console.error('休業日の読み込みに失敗しました:', error);
+        // ネットワークエラーの場合はデフォルト休業日を使用
         loadDefaultHolidays();
     }
 }
 
-// デフォルト休業日（日曜日）
+// デフォルト休業日（日曜日）- Firestoreからのデータ取得に失敗した場合のフォールバック
 function loadDefaultHolidays() {
     holidays = [
         '2025-07-06', '2025-07-13', '2025-07-20', '2025-07-27',
@@ -211,6 +191,12 @@ async function checkReservationNumberExists(reservationNumber) {
 // メニューの表示
 function displayMenus() {
     const menuGrid = document.getElementById('menu-grid');
+    
+    if (Object.keys(menus).length === 0) {
+        menuGrid.innerHTML = '<div class="error">メニューデータがありません。管理者にお問い合わせください。</div>';
+        return;
+    }
+    
     menuGrid.innerHTML = '';
     
     Object.entries(menus).forEach(([menuName, menuData]) => {
