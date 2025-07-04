@@ -311,7 +311,7 @@ function updateCalendar() {
         const dayHeader = document.createElement('div');
         dayHeader.textContent = day;
         dayHeader.style.fontWeight = 'bold';
-        dayHeader.style.color = '#e74c3c';
+        dayHeader.style.color = '#ff6b35';
         dayHeader.style.textAlign = 'center';
         dayHeader.style.padding = '10px 0';
         calendarGrid.appendChild(dayHeader);
@@ -338,22 +338,40 @@ function updateCalendar() {
         const cellDate = new Date(currentYear, currentMonth, day);
         const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
+        // 過去の日付は無効
         if (cellDate < tomorrow) {
             dayCell.classList.add('disabled');
-        } else if (holidays.includes(dateString)) {
+            dayCell.title = '過去の日付は選択できません';
+        } 
+        // Firestoreから取得した休業日をチェック
+        else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
-        } else {
+            dayCell.classList.add('holiday');
+            dayCell.title = '休業日です';
+        } 
+        // 日曜日も休業日として扱う（補完機能）
+        else if (cellDate.getDay() === 0) {
+            dayCell.classList.add('disabled');
+            dayCell.classList.add('holiday');
+            dayCell.title = '定休日（日曜日）です';
+        }
+        // 1ヶ月を超える日付は無効
+        else {
             const oneMonthLater = new Date(today);
             oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
             if (cellDate > oneMonthLater) {
                 dayCell.classList.add('disabled');
+                dayCell.title = '予約は1ヶ月先まで可能です';
             } else {
                 dayCell.onclick = () => selectDate(dateString);
+                dayCell.title = `${dateString}を選択`;
             }
         }
         
         calendarGrid.appendChild(dayCell);
     }
+    
+    console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件`);
 }
 
 // 月変更
