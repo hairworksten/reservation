@@ -35,26 +35,47 @@ body {
 }
 
 .header-logo {
-    width: 120px;
-    height: 40px;
-    background: #f8f6f0;
+    width: 80px;
+    height: 30px;
+    background: transparent;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
-    color: #2c3e50;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    background-image: url('logo.png'); /* ロゴ画像ファイルのパス */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    color: #f8f6f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    filter: brightness(0) invert(1); /* 白いロゴを見やすくするためのフィルター（必要に応じて削除） */
 }
 
 /* ロゴ画像が読み込まれていない場合のフォールバック */
-.header-logo:empty::after {
+.header-logo::after {
     content: "Hair Works天";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    display: block;
+    color: #f8f6f0;
+}
+
+/* 画像が正常に読み込まれた場合はテキストを隠す */
+.header-logo:has(img) {
+    color: transparent;
+}
+
+.header-logo:has(img)::after {
+    display: none;
 }
 
 .header-title {
