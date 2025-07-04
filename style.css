@@ -217,6 +217,84 @@ min-width: 60px;
 text-align: center;
 }
 
+/* 検索フォーム */
+.search-container {
+margin-bottom: 20px;
+}
+
+.search-form {
+display: flex;
+flex-direction: column;
+gap: 15px;
+max-width: 800px;
+}
+
+.search-form input[type=“text”] {
+padding: 12px;
+border: 2px solid #555;
+border-radius: 8px;
+background-color: #4a4a4a;
+color: #ffffff;
+font-size: 16px;
+width: 100%;
+}
+
+.search-form input[type=“text”]:focus {
+outline: none;
+border-color: #ff6b35;
+}
+
+.date-range-container {
+display: flex;
+align-items: center;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.date-range-container input[type=“date”] {
+padding: 12px;
+border: 2px solid #555;
+border-radius: 8px;
+background-color: #4a4a4a;
+color: #ffffff;
+font-size: 16px;
+flex: 1;
+min-width: 150px;
+}
+
+.date-range-container input[type=“date”]:focus {
+outline: none;
+border-color: #ff6b35;
+}
+
+.date-range-container span {
+color: #ffffff;
+font-weight: bold;
+}
+
+.search-form .btn {
+align-self: flex-start;
+margin-right: 10px;
+}
+
+@media (min-width: 768px) {
+.search-form {
+flex-direction: row;
+align-items: center;
+}
+
+```
+.search-form input[type="text"] {
+    flex: 2;
+}
+
+.date-range-container {
+    flex: 1;
+}
+```
+
+}
+
 /* 予約リスト */
 .reservations-list {
 display: grid;
