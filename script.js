@@ -83,16 +83,10 @@ async function loadHolidays() {
             throw new Error('休業日データの形式が正しくありません');
         }
         
-        // 休業日が空の場合はデフォルト休業日を使用
-        if (holidays.length === 0) {
-            console.warn('休業日データが空です。デフォルト休業日を使用します。');
-            loadDefaultHolidays();
-        }
-        
     } catch (error) {
         console.error('休業日の読み込みに失敗しました:', error);
-        // ネットワークエラーの場合はデフォルト休業日を使用
-        loadDefaultHolidays();
+        // エラーの場合は空の配列を使用（app.pyで日曜日は自動処理される）
+        holidays = [];
     }
 }
 
@@ -343,18 +337,12 @@ function updateCalendar() {
             dayCell.classList.add('disabled');
             dayCell.title = '過去の日付は選択できません';
         } 
-        // Firestoreから取得した休業日をチェック
+        // Firestoreから取得した休業日をチェック（日曜日も含む）
         else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
             dayCell.classList.add('holiday');
             dayCell.title = '休業日です';
         } 
-        // 日曜日も休業日として扱う（補完機能）
-        else if (cellDate.getDay() === 0) {
-            dayCell.classList.add('disabled');
-            dayCell.classList.add('holiday');
-            dayCell.title = '定休日（日曜日）です';
-        }
         // 1ヶ月を超える日付は無効
         else {
             const oneMonthLater = new Date(today);
