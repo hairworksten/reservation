@@ -19,7 +19,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initCalendar();
     // 事前に休業日データを取得しておく（ページ切り替えを高速化）
     loadHolidays();
+    
+    // ロゴ画像の表示制御（Safari対応）
+    initLogoDisplay();
 });
+
+// ロゴ画像の表示制御（Safari対応）
+function initLogoDisplay() {
+    const logoImg = document.querySelector('.header-logo img');
+    const logoContainer = document.querySelector('.header-logo');
+    
+    if (logoImg && logoContainer) {
+        logoImg.onload = function() {
+            logoContainer.classList.add('has-image');
+        };
+        
+        logoImg.onerror = function() {
+            logoContainer.classList.remove('has-image');
+        };
+        
+        // 既に画像が読み込まれている場合
+        if (logoImg.complete && logoImg.naturalHeight !== 0) {
+            logoContainer.classList.add('has-image');
+        }
+    }
+}
 
 // Cloud Run APIからメニューデータの読み込み
 async function loadMenus() {
