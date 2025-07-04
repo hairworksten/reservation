@@ -10,9 +10,8 @@ let menus = {};
 let holidays = [];
 let reservations = [];
 
-// Firestore設定（実際の設定は環境変数から取得）
-const FIRESTORE_API_KEY = 'YOUR_API_KEY_HERE'; // 実際の運用時は環境変数から
-const FIRESTORE_PROJECT_ID = 'YOUR_PROJECT_ID_HERE'; // 実際の運用時は環境変数から
+// Cloud Run API設定
+const API_BASE_URL = 'https://your-cloud-run-service-url.run.app/api'; // 実際のCloud Run URLに変更
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,46 +19,231 @@ document.addEventListener('DOMContentLoaded', function() {
     initCalendar();
 });
 
-// メニューデータの読み込み
+// Cloud Run APIからメニューデータの読み込み
 async function loadMenus() {
     try {
-        // 実際の運用時はFirestoreから取得
-        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/menus`);
-        // const data = await response.json();
-        
-        // デモデータ
-        menus = {
-            'カット': {
-                fare: 4000,
-                text: '髪の長さや髪質に合わせて、お客様のご希望に沿ったカットを致します。',
-                worktime: 60
-            },
-            'カラー': {
-                fare: 6000,
-                text: '豊富なカラーバリエーションから、お客様にぴったりの色をご提案します。',
-                worktime: 90
-            },
-            'パーマ': {
-                fare: 7000,
-                text: 'ダメージを抑えながら、理想のカールを実現します。',
-                worktime: 120
-            },
-            'カット+カラー': {
-                fare: 9000,
-                text: 'カットとカラーをセットで行います。お得なセットメニューです。',
-                worktime: 150
-            },
-            'トリートメント': {
-                fare: 3000,
-                text: '髪の内部から補修し、健康な髪に導きます。',
-                worktime: 45
+        const response = await fetch(`${API_BASE_URL}/menus`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
             }
-        };
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.menus) {
+            menus = data.menus;
+        } else {
+            throw new Error('メニューデータの形式が正しくありません');
+        }
         
         displayMenus();
     } catch (error) {
         console.error('メニューの読み込みに失敗しました:', error);
-        document.getElementById('menu-grid').innerHTML = '<div class="error">メニューの読み込みに失敗しました。</div>';
+        console.log('デモデータを使用します。');
+        loadDemoMenus();
+        displayMenus();
+    }
+}
+
+// デモメニューデータ
+function loadDemoMenus() {
+    menus = {
+        'カット': {
+            fare: 4000,
+            text: '髪の長さや髪質に合わせて、お客様のご希望に沿ったカットを致します。',
+            worktime: 60
+        },
+        'カラー': {
+            fare: 6000,
+            text: '豊富なカラーバリエーションから、お客様にぴったりの色をご提案します。',
+            worktime: 90
+        },
+        'パーマ': {
+            fare: 7000,
+            text: 'ダメージを抑えながら、理想のカールを実現します。',
+            worktime: 120
+        },
+        'カット+カラー': {
+            fare: 9000,
+            text: 'カットとカラーをセットで行います。お得なセットメニューです。',
+            worktime: 150
+        },
+        'トリートメント': {
+            fare: 3000,
+            text: '髪の内部から補修し、健康な髪に導きます。',
+            worktime: 45
+        }
+    };
+}
+
+// Cloud Run APIから休業日の読み込み
+async function loadHolidays() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/holidays`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.holidays)) {
+            holidays = data.holidays;
+        } else {
+            throw new Error('休業日データの形式が正しくありません');
+        }
+        
+        // 休業日が空の場合はデフォルト休業日を使用
+        if (holidays.length === 0) {
+            console.warn('休業日データが空です。デフォルト休業日を使用します。');
+            loadDefaultHolidays();
+        }
+        
+    } catch (error) {
+        console.error('休業日の読み込みに失敗しました:', error);
+        loadDefaultHolidays();
+    }
+}
+
+// デフォルト休業日（日曜日）
+function loadDefaultHolidays() {
+    holidays = [
+        '2025-07-06', // 日曜日
+        '2025-07-13', // 日曜日
+        '2025-07-20', // 日曜日
+        '2025-07-27', // 日曜日
+        '2025-08-03', // 日曜日
+        '2025-08-10', // 日曜日
+        '2025-08-17', // 日曜日
+        '2025-08-24', // 日曜日
+        '2025-08-31', // 日曜日
+    ];
+}
+
+// Cloud Run APIから予約データの読み込み
+async function loadReservations(date) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/${date}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.reservations)) {
+            reservations = data.reservations;
+        } else {
+            reservations = [];
+        }
+        
+    } catch (error) {
+        console.error('予約データの読み込みに失敗しました:', error);
+        // エラーの場合は空の配列を設定
+        reservations = [];
+    }
+}
+
+// Cloud Run APIに予約データを送信
+async function saveReservationToAPI(reservationData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservation: reservationData
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || '予約の保存に失敗しました');
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('予約データの送信に失敗しました:', error);
+        throw error;
+    }
+}
+
+// 複数の予約データを一括送信
+async function saveMultipleReservations(reservationsArray) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/batch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservations: reservationsArray
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || '予約の一括保存に失敗しました');
+        }
+        
+        console.log('全ての予約データが正常に保存されました。');
+        return result;
+        
+    } catch (error) {
+        console.error('予約データの一括送信に失敗しました:', error);
+        throw error;
+    }
+}
+
+// 予約番号の重複チェック
+async function checkReservationNumberExists(reservationNumber) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/check/${reservationNumber}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.exists || false;
+        
+    } catch (error) {
+        console.error('予約番号の確認に失敗しました:', error);
+        return false; // エラーの場合は重複なしとして処理
     }
 }
 
@@ -162,20 +346,35 @@ function goToReservationCheck() {
 // 休業日の読み込み
 async function loadHolidays() {
     try {
-        // 実際の運用時はFirestoreから取得
-        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/holidays`);
-        // const data = await response.json();
+        const response = await fetch(`${FIRESTORE_BASE_URL}/holidays`);
         
-        // デモデータ
-        holidays = [
-            '2025-07-06', // 日曜日
-            '2025-07-13', // 日曜日
-            '2025-07-20', // 日曜日
-            '2025-07-27', // 日曜日
-        ];
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Firestoreのデータ形式から変換
+        holidays = [];
+        if (data.documents) {
+            data.documents.forEach(doc => {
+                const fields = doc.fields;
+                const date = fields.date?.stringValue;
+                if (date) {
+                    holidays.push(date);
+                }
+            });
+        }
+        
+        // 休業日が空の場合はデフォルト休業日を使用（日曜日）
+        if (holidays.length === 0) {
+            console.warn('Firestoreから休業日を取得できませんでした。デフォルト休業日を使用します。');
+            loadDefaultHolidays();
+        }
+        
     } catch (error) {
         console.error('休業日の読み込みに失敗しました:', error);
-        holidays = [];
+        loadDefaultHolidays();
     }
 }
 
@@ -334,35 +533,42 @@ async function displayTimeSlots(date) {
 // 予約データの読み込み
 async function loadReservations(date) {
     try {
-        // 実際の運用時はFirestoreから取得
-        // const response = await fetch(`https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/reservations`);
-        // const data = await response.json();
+        // 特定の日付の予約を取得するクエリ
+        const response = await fetch(`${FIRESTORE_BASE_URL}/reservations?pageSize=1000`);
         
-        // デモデータ
-        reservations = [
-            {
-                Menu: "カット",
-                "Name-f": "田中",
-                "Name-s": "太郎",
-                Time: "11:00",
-                WorkTime: 60,
-                date: "2025-07-05",
-                mail: "tanaka@example.com",
-                states: 0
-            },
-            {
-                Menu: "カラー",
-                "Name-f": "佐藤",
-                "Name-s": "花子",
-                Time: "14:00",
-                WorkTime: 90,
-                date: "2025-07-05",
-                mail: "sato@example.com",
-                states: 0
-            }
-        ];
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Firestoreのデータ形式から変換
+        reservations = [];
+        if (data.documents) {
+            data.documents.forEach(doc => {
+                const fields = doc.fields;
+                
+                // 指定された日付の予約のみを抽出
+                const reservationDate = fields.date?.stringValue;
+                if (reservationDate === date) {
+                    reservations.push({
+                        id: doc.name.split('/').pop(),
+                        Menu: fields.Menu?.stringValue || '',
+                        "Name-f": fields["Name-f"]?.stringValue || '',
+                        "Name-s": fields["Name-s"]?.stringValue || '',
+                        Time: fields.Time?.stringValue || '',
+                        WorkTime: parseInt(fields.WorkTime?.integerValue || fields.WorkTime?.doubleValue || 0),
+                        date: reservationDate,
+                        mail: fields.mail?.stringValue || '',
+                        states: parseInt(fields.states?.integerValue || fields.states?.doubleValue || 0)
+                    });
+                }
+            });
+        }
+        
     } catch (error) {
         console.error('予約データの読み込みに失敗しました:', error);
+        // エラーの場合は空の配列を設定
         reservations = [];
     }
 }
@@ -529,6 +735,25 @@ function displayConfirmationDetails() {
     confirmationDetails.innerHTML = html;
 }
 
+// 予約番号生成（重複チェック付き）
+async function generateReservationNumber() {
+    let reservationNumber;
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    do {
+        reservationNumber = Math.floor(Math.random() * 90000000) + 10000000;
+        attempts++;
+        
+        if (attempts >= maxAttempts) {
+            throw new Error('予約番号の生成に失敗しました。しばらく時間をおいてから再度お試しください。');
+        }
+        
+    } while (await checkReservationNumberExists(reservationNumber));
+    
+    return reservationNumber;
+}
+
 // 予約送信
 async function submitReservation() {
     try {
@@ -547,12 +772,12 @@ async function submitReservation() {
             return;
         }
         
-        // 予約番号生成
-        const reservationNumber = generateReservationNumber();
+        // 予約番号生成（重複チェック付き）
+        const mainReservationNumber = await generateReservationNumber();
         
         // 代表者の予約データ
         const mainReservation = {
-            reservationNumber: reservationNumber,
+            reservationNumber: mainReservationNumber,
             Menu: selectedMenu.name,
             "Name-f": document.getElementById('last-name').value.trim(),
             "Name-s": document.getElementById('first-name').value.trim(),
@@ -564,20 +789,24 @@ async function submitReservation() {
         };
         
         // 同行者の予約データ
-        const companionReservations = companions.map(companion => ({
-            reservationNumber: generateReservationNumber(),
-            Menu: companion.menu,
-            "Name-f": companion.lastName,
-            "Name-s": companion.firstName,
-            Time: selectedTime,
-            WorkTime: menus[companion.menu].worktime,
-            date: selectedDate,
-            mail: "同行者",
-            states: 0
-        }));
+        const companionReservations = [];
+        for (const companion of companions) {
+            const companionReservationNumber = await generateReservationNumber();
+            companionReservations.push({
+                reservationNumber: companionReservationNumber,
+                Menu: companion.menu,
+                "Name-f": companion.lastName,
+                "Name-s": companion.firstName,
+                Time: selectedTime,
+                WorkTime: menus[companion.menu].worktime,
+                date: selectedDate,
+                mail: "同行者",
+                states: 0
+            });
+        }
         
-        // 実際の運用時はFirestoreに保存
-        // await saveToFirestore([mainReservation, ...companionReservations]);
+        // Cloud Run APIに送信
+        await saveMultipleReservations([mainReservation, ...companionReservations]);
         
         // 完了画面に遷移
         displayCompletionDetails(mainReservation, companionReservations);
@@ -587,11 +816,6 @@ async function submitReservation() {
         console.error('予約の送信に失敗しました:', error);
         alert('予約の送信に失敗しました。もう一度お試しください。');
     }
-}
-
-// 予約番号生成
-function generateReservationNumber() {
-    return Math.floor(Math.random() * 90000000) + 10000000;
 }
 
 // 完了画面の詳細表示
