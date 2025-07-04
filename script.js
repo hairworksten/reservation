@@ -12,7 +12,7 @@ let reservations = [];
 
 // Cloud Run API設定 - 実際のDeployされたURLに変更してください
 // 例: 'https://hair-works-api-123456789-an.a.run.app/api'
-const API_BASE_URL = 'https://hair-works-api-knn6yth7rq-an.a.run.app';
+const API_BASE_URL = 'https://hair-works-api-knn6yth7rq-an.a.run.app/api';
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
