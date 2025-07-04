@@ -337,7 +337,7 @@ function updateCalendar() {
             dayCell.classList.add('disabled');
             dayCell.title = '過去の日付は選択できません';
         } 
-        // Firestoreから取得した休業日をチェック（日曜日も含む）
+        // Firestoreから取得した休業日のみをチェック
         else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
             dayCell.classList.add('holiday');
