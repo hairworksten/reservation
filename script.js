@@ -1,5 +1,5 @@
 // APIベースURL
-const API_BASE_URL = ‘https://reservation-api-36382648212.asia-northeast1.run.app/api’;
+const API_BASE_URL = "https://reservation-api-36382648212.asia-northeast1.run.app/api";
 
 // グローバル変数
 let currentUser = null;
