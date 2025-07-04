@@ -826,7 +826,7 @@ async function handleAddHoliday() {
         const existingHolidays = await response.json();
         
         if (existingHolidays.includes(date)) {
-            showErrorMessage('この日付は既に定休日として設定されています');
+            showErrorMessage('この日付は既に休業日として設定されています');
             return;
         }
     } catch (error) {
@@ -861,13 +861,13 @@ async function handleAddHoliday() {
                 day: 'numeric',
                 weekday: 'short'
             });
-            showSuccessMessage(`${formattedDate}を定休日に設定しました`);
+            showSuccessMessage(`${formattedDate}休業日に設定しました`);
         } else {
             throw new Error('追加に失敗しました');
         }
     } catch (error) {
         console.error('Error adding holiday:', error);
-        showErrorMessage('定休日の追加に失敗しました');
+        showErrorMessage('休業日の追加に失敗しました');
     }
 }
 
@@ -881,8 +881,8 @@ async function handleDeleteHoliday(date) {
     });
     
     showConfirm(
-        '定休日の削除', 
-        `${formattedDate}を定休日から削除しますか？`, 
+        '休業日の削除', 
+        `${formattedDate}を休業日から削除しますか？`, 
         async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/holidays/${encodeURIComponent(date)}`, {
@@ -891,13 +891,13 @@ async function handleDeleteHoliday(date) {
 
                 if (response.ok) {
                     await loadHolidays();
-                    showSuccessMessage('定休日を削除しました');
+                    showSuccessMessage('休業日を削除しました');
                 } else {
                     throw new Error('削除に失敗しました');
                 }
             } catch (error) {
                 console.error('Error deleting holiday:', error);
-                showErrorMessage('定休日の削除に失敗しました');
+                showErrorMessage('休業日の削除に失敗しました');
             }
         }
     );
