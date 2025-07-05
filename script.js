@@ -354,7 +354,8 @@ function goToCompletionPage() {
 }
 
 function goToReservationCheck() {
-    alert('予約確認ページは後日実装予定です。');
+    // 予約確認システムにリダイレクト
+    window.open('https://hairworksten.github.io/reservation-conference/index.html', '_blank');
 }
 
 // カレンダーの初期化
