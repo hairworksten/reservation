@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hair works 天 - 予約サイト</title>
+    <title>Hair Works天 - 予約サイト</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="main-header">
         <div class="header-content">
             <div class="header-logo">
-                <img src="logo.png" alt="Hair works 天 ロゴ" onerror="this.style.display='none'" class="logo-image">
+                <img src="logo.png" alt="Hair Works天 ロゴ" onerror="this.style.display='none'" class="logo-image">
             </div>
+            <button class="header-reservation-button" onclick="goToMenuPage()">ご予約はこちら</button>
         </div>
     </div>
     
     <div class="wave-decoration"></div>
     
-    <!-- トップページ -->
+    <!-- トップページ（店舗紹介） -->
     <div id="top-page" class="page active">
         <div class="container">
             <div class="shop-info">
-                <div class="shop-name">Hair works 天</div>
+                <div class="shop-name">Hair Works天</div>
                 
-                <!-- 店舗詳細情報 -->
-                <div class="shop-description">
-                    <div class="shop-subtitle">東静岡天然温泉　柚木の郷館内のカット専門店</div>
-                    <div class="shop-note">カットのみでもご利用頂けます</div>
+                <!-- 店舗画像挿入エリア -->
+                <div class="shop-image">
+                    <img src="shop-image.jpg" alt="Hair Works天 店舗画像" class="shop-photo">
                 </div>
                 
                 <div class="shop-address">
@@ -36,90 +36,62 @@
                 <a href="https://maps.google.com/?q=静岡県静岡市葵区東静岡１丁目１−５７" target="_blank" class="map-link">
                     📍 Google Mapで見る
                 </a>
+            </div>
 
-                <!-- 重要な注意事項 -->
-                <div class="important-notices">
-                    <h3>ご予約前に必ずお読みください</h3>
-                    <ul>
-                        <li>予約開始時刻は目安になります（前のお客様のスタイル次第で時間がかかる場合があります）</li>
-                        <li>館内に既にいるお客様の飛び込みのカットを間に入れていきますので、お待たせしてしまう時がありますが、ご了承ください</li>
-                        <li>電話予約は受け付けていませんのでご了承ください</li>
-                        <li>当日ご来店いただくお客様との兼ね合いで、ネット予約は月70件までとさせていただいております。ご迷惑をおかけしますが宜しくお願いいたします。</li>
-                    </ul>
+            <div class="shop-description">
+                <h2 class="section-title">Hair Works天について</h2>
+                <div class="description-content">
+                    <p>静岡市にあるヘアサロン Hair Works天では、お客様一人ひとりに合わせたヘアデザインを提案いたします。</p>
+                    <p>経験豊富なスタイリストが、最新の技術とトレンドを取り入れながら、あなたの魅力を最大限に引き出すお手伝いをいたします。</p>
+                    <p>リラックスできる空間で、上質なヘアケア体験をお楽しみください。</p>
                 </div>
+            </div>
 
-                <!-- 営業時間 -->
-                <div class="business-hours">
-                    <h3>営業時間</h3>
-                    <div class="hours-grid">
-                        <div class="hour-item">
-                            <span class="day">月曜日</span>
-                            <span class="time">10:30 ～ 19:30</span>
-                        </div>
-                        <div class="hour-item">
-                            <span class="day">火曜日</span>
-                            <span class="time">10:30 ～ 19:30</span>
-                        </div>
-                        <div class="hour-item">
-                            <span class="day">水曜日</span>
-                            <span class="time">10:30 ～ 19:30</span>
-                        </div>
-                        <div class="hour-item">
-                            <span class="day">木曜日</span>
-                            <span class="time">10:30 ～ 19:30</span>
-                        </div>
-                        <div class="hour-item">
-                            <span class="day">金曜日</span>
-                            <span class="time">10:30 ～ 19:30</span>
-                        </div>
-                        <div class="hour-item weekend">
-                            <span class="day">土曜日</span>
-                            <span class="time">09:30 ～ 18:30</span>
-                        </div>
-                        <div class="hour-item weekend">
-                            <span class="day">日曜日</span>
-                            <span class="time">09:30 ～ 18:30</span>
-                        </div>
-                        <div class="hour-item weekend">
-                            <span class="day">祝日</span>
-                            <span class="time">09:30 ～ 18:30</span>
-                        </div>
+            <!-- 営業時間・定休日 -->
+            <div class="business-info">
+                <h2 class="section-title">営業時間・定休日</h2>
+                <div class="business-details">
+                    <div class="business-item">
+                        <span class="business-label">営業時間</span>
+                        <span class="business-value">10:00 - 19:00</span>
                     </div>
-                </div>
-
-                <!-- アクセス情報 -->
-                <div class="access-info">
-                    <h3>アクセス方法</h3>
-                    
-                    <div class="access-section">
-                        <h4>🚃 電車でお越しの方</h4>
-                        <p>東海道 東静岡駅北口より徒歩1分。<br>
-                        静岡鉄道柚木駅・長沼駅より徒歩9分。</p>
+                    <div class="business-item">
+                        <span class="business-label">定休日</span>
+                        <span class="business-value">日曜日</span>
                     </div>
-                    
-                    <div class="access-section">
-                        <h4>🚗 お車でお越しの方</h4>
-                        <p>清水IC 静岡IC 新静岡IC各方面より15分。<br>
-                        国道1号線バイパス千代田上土より10分。静岡駅より10分。</p>
-                        
-                        <div class="car-note">
-                            <strong>※カーナビをご利用の方</strong><br>
-                            国道1号線のマークイズ静岡を目指してください。<br>
-                            国道1号線からマークイズ静岡横、東静岡大橋の側道を抜けて左折してください。
-                        </div>
-                        
-                        <div class="parking-info">
-                            <strong>🅿️ 駐車場240台完備</strong>
-                        </div>
+                    <div class="business-item">
+                        <span class="business-label">電話番号</span>
+                        <span class="business-value">054-XXX-XXXX</span>
                     </div>
                 </div>
             </div>
 
+            <!-- メインの予約ボタン -->
+            <div class="main-reservation-section">
+                <button class="main-reservation-button" onclick="goToMenuPage()">
+                    <span class="button-icon">✂️</span>
+                    <span class="button-text">ご予約はこちら</span>
+                    <span class="button-arrow">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メニュー選択ページ -->
+    <div id="menu-page" class="page">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title">メニューを選択してください</div>
+            </div>
+
             <div class="menu-section">
-                <h2 class="menu-title">メニューを選択してください</h2>
                 <div id="menu-grid" class="menu-grid">
                     <div class="loading">メニューを読み込んでいます...</div>
                 </div>
+            </div>
+
+            <div class="button-group">
+                <button class="back-button" onclick="goToTopPage()">戻る</button>
             </div>
         </div>
     </div>
@@ -137,15 +109,20 @@
                     <div class="month-year" id="month-year"></div>
                     <button class="calendar-nav" onclick="changeMonth(1)">▶</button>
                 </div>
-                <div class="calendar-grid" id="calendar-grid"></div>
+                <div class="calendar-wrapper">
+                    <div class="calendar-grid" id="calendar-grid"></div>
+                </div>
             </div>
 
-            <div id="time-slots-container" style="display: none;">
-                <h3 style="color: #f8f6f0; margin-bottom: 15px; text-align: center;">時間を選択してください</h3>
+            <div id="time-slots-container" class="time-slots-container">
+                <h3 class="time-selection-title">時間を選択してください</h3>
                 <div class="time-slots" id="time-slots"></div>
             </div>
 
-            <button class="next-button" id="datetime-next-button" onclick="goToInfoPage()">次へ</button>
+            <div class="button-group">
+                <button class="back-button" onclick="goToMenuPage()">戻る</button>
+                <button class="next-button" id="datetime-next-button" onclick="goToInfoPage()">次へ</button>
+            </div>
         </div>
     </div>
 
@@ -220,6 +197,7 @@
                 <div id="completion-details"></div>
                 <div class="completion-message">
                     この度はご予約ありがとうございます。<br>
+                    ご指定のメールアドレスにご予約の確認メールを送信しました。<br>
                     お客様のご来店を心よりお待ちしております。
                 </div>
                 <a href="#" class="check-reservation-button" onclick="goToReservationCheck()">
