@@ -814,3 +814,36 @@ function displayCompletionDetails(mainReservation, companionReservations) {
     
     document.getElementById('completion-details').innerHTML = html;
 }
+
+// トップページに移動
+function goToTopPage() {
+    showPage('top-page');
+    // 選択状態をリセット
+    selectedMenu = null;
+    selectedDate = null;
+    selectedTime = null;
+    companions = [];
+    
+    // フォームをリセット
+    const forms = document.querySelectorAll('input, select');
+    forms.forEach(form => {
+        if (form.type !== 'button' && form.type !== 'submit') {
+            form.value = '';
+        }
+    });
+    
+    // 同行者セクションをクリア
+    const companionsContainer = document.getElementById('companions-container');
+    if (companionsContainer) {
+        companionsContainer.innerHTML = '';
+    }
+}
+
+// メニュー選択ページに移動
+function goToMenuPage() {
+    showPage('menu-page');
+    // メニューが読み込まれていない場合は読み込む
+    if (Object.keys(menus).length === 0) {
+        loadMenus();
+    }
+}
