@@ -15,13 +15,15 @@ const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
-    loadMenus();
-    initCalendar();
-    // 事前に休業日データを取得しておく（ページ切り替えを高速化）
-    loadHolidays();
-    
     // ロゴ画像の表示制御（Safari対応）
     initLogoDisplay();
+    
+    // カレンダーの初期化
+    initCalendar();
+    
+    // 事前に必要なデータを取得
+    loadMenus();
+    loadHolidays();
 });
 
 // ロゴ画像の表示制御（Safari対応）
@@ -45,9 +47,100 @@ function initLogoDisplay() {
     }
 }
 
+// ページ遷移
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+    currentPage = pageId;
+}
+
+// トップページに戻る
+function goToTopPage() {
+    showPage('top-page');
+}
+
+// メニュー選択ページへ
+function goToMenuPage() {
+    showPage('menu-page');
+    
+    // メニューデータがまだロードされていない場合は再読み込み
+    if (Object.keys(menus).length === 0) {
+        loadMenus();
+    }
+}
+
+// 日時選択ページへ
+async function goToDatetimePage() {
+    if (!selectedMenu) {
+        alert('メニューを選択してください。');
+        return;
+    }
+    
+    showPage('datetime-page');
+    
+    // ローディング表示
+    const calendarGrid = document.getElementById('calendar-grid');
+    const timeSlotsContainer = document.getElementById('time-slots-container');
+    const nextButton = document.getElementById('datetime-next-button');
+    
+    calendarGrid.innerHTML = '<div class="loading">カレンダーを読み込んでいます...</div>';
+    timeSlotsContainer.classList.remove('show');
+    timeSlotsContainer.style.display = 'none';
+    nextButton.classList.remove('show');
+    
+    // 選択状態をリセット
+    selectedDate = null;
+    selectedTime = null;
+    
+    try {
+        // 休業日データを取得
+        await loadHolidays();
+        
+        // カレンダーを更新
+        updateCalendar();
+        
+        console.log('日時選択ページの初期化が完了しました');
+    } catch (error) {
+        console.error('日時選択ページの初期化に失敗しました:', error);
+        calendarGrid.innerHTML = '<div class="error">カレンダーの読み込みに失敗しました。再度お試しください。</div>';
+    }
+}
+
+// 情報入力ページへ
+function goToInfoPage() {
+    if (!selectedDate || !selectedTime) {
+        alert('日時を選択してください。');
+        return;
+    }
+    showPage('info-page');
+}
+
+// 確認ページへ
+function goToConfirmPage() {
+    if (!validateInfoForm()) {
+        return;
+    }
+    showPage('confirm-page');
+    displayConfirmationDetails();
+}
+
+// 完了ページへ
+function goToCompletionPage() {
+    showPage('completion-page');
+}
+
+// 予約確認ページ（未実装）
+function goToReservationCheck() {
+    alert('予約確認ページは後日実装予定です。');
+}
+
 // Cloud Run APIからメニューデータの読み込み
 async function loadMenus() {
     const menuGrid = document.getElementById('menu-grid');
+    if (!menuGrid) return;
+    
     menuGrid.innerHTML = '<div class="loading">メニューを読み込んでいます...</div>';
     
     try {
@@ -86,161 +179,10 @@ async function loadMenus() {
     }
 }
 
-// Cloud Run APIから休業日の読み込み
-async function loadHolidays() {
-    try {
-        console.log('休業日データを取得中...');
-        const response = await fetch(`${API_BASE_URL}/holidays`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && Array.isArray(data.holidays)) {
-            holidays = data.holidays;
-            console.log('休業日データを正常に読み込みました:', holidays);
-        } else {
-            throw new Error('休業日データの形式が正しくありません');
-        }
-        
-    } catch (error) {
-        console.error('休業日の読み込みに失敗しました:', error);
-        // エラーの場合は空の配列を使用
-        holidays = [];
-        
-        // ユーザーに分かりやすいエラーメッセージを表示
-        if (currentPage === 'datetime-page') {
-            const calendarGrid = document.getElementById('calendar-grid');
-            calendarGrid.innerHTML = `
-                <div class="error">
-                    <h4>休業日データの取得に失敗しました</h4>
-                    <p>エラー: ${error.message}</p>
-                    <button onclick="retryLoadHolidays()" class="select-button" style="margin-top: 15px;">再試行</button>
-                </div>
-            `;
-        }
-        
-        throw error; // エラーを再スローして呼び出し元で処理
-    }
-}
-
-// 休業日データの再取得（エラー時の再試行用）
-async function retryLoadHolidays() {
-    const calendarGrid = document.getElementById('calendar-grid');
-    calendarGrid.innerHTML = '<div class="loading">休業日データを再取得しています...</div>';
-    
-    try {
-        await loadHolidays();
-        updateCalendar();
-        console.log('休業日データの再取得が成功しました');
-    } catch (error) {
-        console.error('休業日データの再取得に失敗しました:', error);
-        // loadHolidays() 内でエラー表示済み
-    }
-}
-
-// デフォルト休業日（日曜日）- Firestoreからのデータ取得に失敗した場合のフォールバック
-function loadDefaultHolidays() {
-    holidays = [
-        '2025-07-06', '2025-07-13', '2025-07-20', '2025-07-27',
-        '2025-08-03', '2025-08-10', '2025-08-17', '2025-08-24', '2025-08-31'
-    ];
-}
-
-// Cloud Run APIから予約データの読み込み
-async function loadReservations(date) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/reservations/${date}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && Array.isArray(data.reservations)) {
-            reservations = data.reservations;
-        } else {
-            reservations = [];
-        }
-        
-    } catch (error) {
-        console.error('予約データの読み込みに失敗しました:', error);
-        reservations = [];
-    }
-}
-
-// 複数の予約データを一括送信
-async function saveMultipleReservations(reservationsArray) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/reservations/batch`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                reservations: reservationsArray
-            })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error(result.message || '予約の一括保存に失敗しました');
-        }
-        
-        console.log('全ての予約データが正常に保存されました。');
-        return result;
-        
-    } catch (error) {
-        console.error('予約データの一括送信に失敗しました:', error);
-        throw error;
-    }
-}
-
-// 予約番号の重複チェック
-async function checkReservationNumberExists(reservationNumber) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/reservations/check/${reservationNumber}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        return data.exists || false;
-        
-    } catch (error) {
-        console.error('予約番号の確認に失敗しました:', error);
-        return false;
-    }
-}
-
 // メニューの表示
 function displayMenus() {
     const menuGrid = document.getElementById('menu-grid');
+    if (!menuGrid) return;
     
     if (Object.keys(menus).length === 0) {
         menuGrid.innerHTML = '<div class="error">メニューデータがありません。管理者にお問い合わせください。</div>';
@@ -295,67 +237,98 @@ function selectMenu(menuName, menuData) {
 // メニュー選択して次のページへ
 async function selectMenuAndGoNext(menuName) {
     selectedMenu = { name: menuName, ...menus[menuName] };
-    await goToDatetimePage(); // 非同期で日時選択ページへ
+    await goToDatetimePage();
 }
 
-// ページ遷移
-function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    document.getElementById(pageId).classList.add('active');
-    currentPage = pageId;
+// Cloud Run APIから休業日の読み込み
+async function loadHolidays() {
+    try {
+        console.log('休業日データを取得中...');
+        const response = await fetch(`${API_BASE_URL}/holidays`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.holidays)) {
+            holidays = data.holidays;
+            console.log('休業日データを正常に読み込みました:', holidays);
+        } else {
+            throw new Error('休業日データの形式が正しくありません');
+        }
+        
+    } catch (error) {
+        console.error('休業日の読み込みに失敗しました:', error);
+        // エラーの場合は空の配列を使用
+        holidays = [];
+        
+        // ユーザーに分かりやすいエラーメッセージを表示
+        if (currentPage === 'datetime-page') {
+            const calendarGrid = document.getElementById('calendar-grid');
+            if (calendarGrid) {
+                calendarGrid.innerHTML = `
+                    <div class="error">
+                        <h4>休業日データの取得に失敗しました</h4>
+                        <p>エラー: ${error.message}</p>
+                        <button onclick="retryLoadHolidays()" class="select-button" style="margin-top: 15px;">再試行</button>
+                    </div>
+                `;
+            }
+        }
+        
+        throw error;
+    }
 }
 
-async function goToDatetimePage() {
-    showPage('datetime-page');
-    
-    // ローディング表示
+// 休業日データの再取得（エラー時の再試行用）
+async function retryLoadHolidays() {
     const calendarGrid = document.getElementById('calendar-grid');
-    const timeSlotsContainer = document.getElementById('time-slots-container');
-    const nextButton = document.getElementById('datetime-next-button');
-    
-    calendarGrid.innerHTML = '<div class="loading">カレンダーを読み込んでいます...</div>';
-    timeSlotsContainer.style.display = 'none';
-    nextButton.classList.remove('show');
+    if (calendarGrid) {
+        calendarGrid.innerHTML = '<div class="loading">休業日データを再取得しています...</div>';
+    }
     
     try {
-        // 休業日データを取得
         await loadHolidays();
-        
-        // カレンダーを更新
         updateCalendar();
-        
-        console.log('日時選択ページの初期化が完了しました');
+        console.log('休業日データの再取得が成功しました');
     } catch (error) {
-        console.error('日時選択ページの初期化に失敗しました:', error);
-        calendarGrid.innerHTML = '<div class="error">カレンダーの読み込みに失敗しました。再度お試しください。</div>';
+        console.error('休業日データの再取得に失敗しました:', error);
     }
 }
 
-function goToInfoPage() {
-    if (!selectedDate || !selectedTime) {
-        alert('日時を選択してください。');
-        return;
+// Cloud Run APIから予約データの読み込み
+async function loadReservations(date) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/${date}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.reservations)) {
+            reservations = data.reservations;
+        } else {
+            reservations = [];
+        }
+        
+    } catch (error) {
+        console.error('予約データの読み込みに失敗しました:', error);
+        reservations = [];
     }
-    showPage('info-page');
-}
-
-function goToConfirmPage() {
-    if (!validateInfoForm()) {
-        return;
-    }
-    showPage('confirm-page');
-    displayConfirmationDetails();
-}
-
-function goToCompletionPage() {
-    showPage('completion-page');
-}
-
-function goToReservationCheck() {
-    // 予約確認システムにリダイレクト
-    window.open('https://hairworksten.github.io/reservation-conference/index.html', '_blank');
 }
 
 // カレンダーの初期化
@@ -363,13 +336,14 @@ function initCalendar() {
     const today = new Date();
     currentMonth = today.getMonth();
     currentYear = today.getFullYear();
-    updateCalendar();
 }
 
 // カレンダーの更新
 function updateCalendar() {
     const monthYear = document.getElementById('month-year');
     const calendarGrid = document.getElementById('calendar-grid');
+    
+    if (!monthYear || !calendarGrid) return;
     
     const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
     monthYear.textContent = `${currentYear}年 ${monthNames[currentMonth]}`;
@@ -382,9 +356,10 @@ function updateCalendar() {
         const dayHeader = document.createElement('div');
         dayHeader.textContent = day;
         dayHeader.style.fontWeight = 'bold';
-        dayHeader.style.color = '#ff6b35';
+        dayHeader.style.color = '#ff8c42';
         dayHeader.style.textAlign = 'center';
-        dayHeader.style.padding = '10px 0';
+        dayHeader.style.padding = '8px 0';
+        dayHeader.style.fontSize = '13px';
         calendarGrid.appendChild(dayHeader);
     });
     
@@ -451,14 +426,25 @@ async function changeMonth(direction) {
     }
     
     // 選択状態をリセット
-    document.getElementById('time-slots-container').style.display = 'none';
-    document.getElementById('datetime-next-button').classList.remove('show');
+    const timeSlotsContainer = document.getElementById('time-slots-container');
+    const nextButton = document.getElementById('datetime-next-button');
+    
+    if (timeSlotsContainer) {
+        timeSlotsContainer.style.display = 'none';
+        timeSlotsContainer.classList.remove('show');
+    }
+    if (nextButton) {
+        nextButton.classList.remove('show');
+    }
+    
     selectedDate = null;
     selectedTime = null;
     
     // ローディング表示
     const calendarGrid = document.getElementById('calendar-grid');
-    calendarGrid.innerHTML = '<div class="loading">カレンダーを更新しています...</div>';
+    if (calendarGrid) {
+        calendarGrid.innerHTML = '<div class="loading">カレンダーを更新しています...</div>';
+    }
     
     try {
         // 休業日データを再取得
@@ -470,7 +456,9 @@ async function changeMonth(direction) {
         console.log(`${currentYear}年${currentMonth + 1}月のカレンダーを更新しました`);
     } catch (error) {
         console.error('カレンダー更新に失敗しました:', error);
-        calendarGrid.innerHTML = '<div class="error">カレンダーの更新に失敗しました。再度お試しください。</div>';
+        if (calendarGrid) {
+            calendarGrid.innerHTML = '<div class="error">カレンダーの更新に失敗しました。再度お試しください。</div>';
+        }
     }
 }
 
@@ -492,7 +480,10 @@ async function displayTimeSlots(date) {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const timeSlots = document.getElementById('time-slots');
     
+    if (!timeSlotsContainer || !timeSlots) return;
+    
     timeSlotsContainer.style.display = 'block';
+    timeSlotsContainer.classList.add('show');
     timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
     
     try {
@@ -537,7 +528,10 @@ function selectTime(time) {
     event.target.classList.add('selected');
     selectedTime = time;
     
-    document.getElementById('datetime-next-button').classList.add('show');
+    const nextButton = document.getElementById('datetime-next-button');
+    if (nextButton) {
+        nextButton.classList.add('show');
+    }
 }
 
 // 同行者追加
@@ -589,7 +583,12 @@ function removeCompanion(companionId) {
         
         companions.forEach((companion, index) => {
             const companionDiv = document.getElementById(companion.id);
-            companionDiv.querySelector('.companion-title').textContent = `同行者 ${index + 1}`;
+            if (companionDiv) {
+                const titleElement = companionDiv.querySelector('.companion-title');
+                if (titleElement) {
+                    titleElement.textContent = `同行者 ${index + 1}`;
+                }
+            }
         });
     }
 }
@@ -633,6 +632,7 @@ function validateInfoForm() {
 // 確認画面の詳細表示
 function displayConfirmationDetails() {
     const confirmationDetails = document.getElementById('confirmation-details');
+    if (!confirmationDetails) return;
     
     const lastName = document.getElementById('last-name').value.trim();
     const firstName = document.getElementById('first-name').value.trim();
@@ -683,6 +683,62 @@ function displayConfirmationDetails() {
     `;
     
     confirmationDetails.innerHTML = html;
+}
+
+// 複数の予約データを一括送信
+async function saveMultipleReservations(reservationsArray) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/batch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservations: reservationsArray
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || '予約の一括保存に失敗しました');
+        }
+        
+        console.log('全ての予約データが正常に保存されました。');
+        return result;
+        
+    } catch (error) {
+        console.error('予約データの一括送信に失敗しました:', error);
+        throw error;
+    }
+}
+
+// 予約番号の重複チェック
+async function checkReservationNumberExists(reservationNumber) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservations/check/${reservationNumber}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.exists || false;
+        
+    } catch (error) {
+        console.error('予約番号の確認に失敗しました:', error);
+        return false;
+    }
 }
 
 // 予約番号生成（重複チェック付き）
@@ -751,9 +807,9 @@ async function submitReservation() {
             });
         }
         
-        const result = await saveMultipleReservations([mainReservation, ...companionReservations]);
+        await saveMultipleReservations([mainReservation, ...companionReservations]);
         
-        displayCompletionDetails(mainReservation, companionReservations, result.email_sent);
+        displayCompletionDetails(mainReservation, companionReservations);
         goToCompletionPage();
         
     } catch (error) {
@@ -763,8 +819,15 @@ async function submitReservation() {
 }
 
 // 完了画面の詳細表示
-function displayCompletionDetails(mainReservation, companionReservations, emailSent = false) {
-    document.getElementById('completion-reservation-number').textContent = `予約番号: ${mainReservation.reservationNumber}`;
+function displayCompletionDetails(mainReservation, companionReservations) {
+    const completionReservationNumber = document.getElementById('completion-reservation-number');
+    const completionDetails = document.getElementById('completion-details');
+    
+    if (completionReservationNumber) {
+        completionReservationNumber.textContent = `予約番号: ${mainReservation.reservationNumber}`;
+    }
+    
+    if (!completionDetails) return;
     
     let html = `
         <div class="confirmation-section">
@@ -813,33 +876,5 @@ function displayCompletionDetails(mainReservation, companionReservations, emailS
         html += '</div>';
     }
     
-    // メール送信状況の表示
-    if (emailSent) {
-        html += `
-            <div class="confirmation-section">
-                <div class="confirmation-title">✅ 確認メール送信完了</div>
-                <div class="confirmation-item">
-                    <span class="confirmation-label">送信先</span>
-                    <span class="confirmation-value">${mainReservation.mail}</span>
-                </div>
-                <div style="color: #4CAF50; font-size: 14px; margin-top: 10px;">
-                    ご予約の詳細を記載した確認メールを送信いたしました。<br>
-                    メールが届かない場合は、迷惑メールフォルダもご確認ください。
-                </div>
-            </div>
-        `;
-    } else {
-        html += `
-            <div class="confirmation-section">
-                <div class="confirmation-title">⚠️ メール送信について</div>
-                <div style="color: #ff8c42; font-size: 14px;">
-                    確認メールの送信に失敗しました。<br>
-                    予約は正常に完了しております。<br>
-                    詳細は上記の予約番号でご確認いただけます。
-                </div>
-            </div>
-        `;
-    }
-    
-    document.getElementById('completion-details').innerHTML = html;
+    completionDetails.innerHTML = html;
 }
