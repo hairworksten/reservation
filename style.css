@@ -62,8 +62,8 @@ body {
 
 .header-logo .logo-image,
 .header-logo img {
-    height: 60px;
-    max-height: 60px;
+    height: 180px;
+    max-height: 110px;
     width: auto;
     max-width: none;
     object-fit: contain;
@@ -1110,8 +1110,8 @@ body {
     
     .header-logo .logo-image,
     .header-logo img {
-        height: 50px;
-        max-height: 50px;
+        height: 180px;
+        max-height: 110px;
     }
     
     .header-logo::after {
