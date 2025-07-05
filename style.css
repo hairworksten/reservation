@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hair works 天 - 予約サイト</title>
+    <style>
 /* Hair Works天 予約サイト - 完全版スタイルシート */
 
 /* ベースリセット & Safari対応 */
@@ -138,26 +145,27 @@ body {
     text-align: center;
 }
 
-.shop-image {
-    margin: 20px 0;
+/* 店舗詳細情報 */
+.shop-description {
     text-align: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(255, 140, 66, 0.1);
+    border-radius: 8px;
+    border: 1px solid #ff8c42;
 }
 
-.shop-photo {
-    width: 100%;
-    max-width: 400px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border: 2px solid #ff8c42;
-    transition: transform 0.2s ease;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+.shop-subtitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff8c42;
+    margin-bottom: 10px;
 }
 
-.shop-photo:hover {
-    transform: translateY(-2px);
+.shop-note {
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 500;
 }
 
 .shop-address {
@@ -177,7 +185,7 @@ body {
     text-decoration: none;
     text-align: center;
     font-weight: bold;
-    margin-top: 15px;
+    margin-bottom: 25px;
     transition: background-color 0.2s ease;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -187,6 +195,149 @@ body {
 
 .map-link:hover {
     background: #e67a35;
+}
+
+/* 重要な注意事項 */
+.important-notices {
+    background: rgba(255, 75, 87, 0.1);
+    border: 2px solid #ff4757;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.important-notices h3 {
+    color: #ff4757;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.important-notices ul {
+    list-style: none;
+    padding: 0;
+}
+
+.important-notices li {
+    margin-bottom: 12px;
+    padding-left: 20px;
+    position: relative;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.important-notices li:before {
+    content: "⚠️";
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* 営業時間 */
+.business-hours {
+    background: rgba(255, 140, 66, 0.1);
+    border: 1px solid #ff8c42;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.business-hours h3 {
+    color: #ff8c42;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.hours-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.hour-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #243552;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 140, 66, 0.3);
+}
+
+.hour-item.weekend {
+    background: rgba(255, 140, 66, 0.1);
+    border-color: #ff8c42;
+}
+
+.hour-item .day {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.hour-item .time {
+    color: #ff8c42;
+    font-weight: 600;
+}
+
+/* アクセス情報 */
+.access-info {
+    background: rgba(255, 140, 66, 0.1);
+    border: 1px solid #ff8c42;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.access-info h3 {
+    color: #ff8c42;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.access-section {
+    margin-bottom: 20px;
+}
+
+.access-section:last-child {
+    margin-bottom: 0;
+}
+
+.access-section h4 {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.access-section p {
+    color: #ffffff;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.car-note {
+    background: rgba(255, 140, 66, 0.1);
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #ff8c42;
+    margin: 15px 0;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.parking-info {
+    background: #243552;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    color: #ff8c42;
+    font-size: 16px;
+    margin-top: 15px;
+    border: 1px solid #ff8c42;
 }
 
 /* メニューセクション */
@@ -922,6 +1073,20 @@ body {
         -ms-grid-template-columns: 1fr !important;
         grid-template-columns: 1fr !important;
     }
+    
+    .shop-subtitle {
+        font-size: 16px;
+    }
+    
+    .hour-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+    
+    .access-section h4 {
+        font-size: 15px;
+    }
 }
 
 /* アクセシビリティ */
@@ -998,11 +1163,20 @@ body {
         width: calc(50% - 6px);
         margin: 3px;
     }
+    
+    .hours-grid {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+    }
 }
 
 /* 高解像度ディスプレイ対応 */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .shop-photo,
     .header-logo img {
         image-rendering: -webkit-optimize-contrast;
         image-rendering: crisp-edges;
@@ -1043,3 +1217,231 @@ iframe {
         color-scheme: dark;
     }
 }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="logo.png" alt="Hair works 天 ロゴ" onerror="this.style.display='none'" class="logo-image">
+            </div>
+        </div>
+    </div>
+    
+    <div class="wave-decoration"></div>
+    
+    <!-- トップページ -->
+    <div id="top-page" class="page active">
+        <div class="container">
+            <div class="shop-info">
+                <div class="shop-name">Hair works 天</div>
+                
+                <!-- 店舗詳細情報 -->
+                <div class="shop-description">
+                    <div class="shop-subtitle">東静岡天然温泉　柚木の郷館内のカット専門店</div>
+                    <div class="shop-note">カットのみでもご利用頂けます</div>
+                </div>
+                
+                <div class="shop-address">
+                    〒420-0817<br>
+                    静岡県静岡市葵区東静岡１丁目１−５７
+                </div>
+                <a href="https://maps.google.com/?q=静岡県静岡市葵区東静岡１丁目１−５７" target="_blank" class="map-link">
+                    📍 Google Mapで見る
+                </a>
+
+                <!-- 重要な注意事項 -->
+                <div class="important-notices">
+                    <h3>ご予約前に必ずお読みください</h3>
+                    <ul>
+                        <li>予約開始時刻は目安になります（前のお客様のスタイル次第で時間がかかる場合があります）</li>
+                        <li>館内に既にいるお客様の飛び込みのカットを間に入れていきますので、お待たせしてしまう時がありますが、ご了承ください</li>
+                        <li>電話予約は受け付けていませんのでご了承ください</li>
+                        <li>当日ご来店いただくお客様との兼ね合いで、ネット予約は月70件までとさせていただいております。ご迷惑をおかけしますが宜しくお願いいたします。</li>
+                    </ul>
+                </div>
+
+                <!-- 営業時間 -->
+                <div class="business-hours">
+                    <h3>営業時間</h3>
+                    <div class="hours-grid">
+                        <div class="hour-item">
+                            <span class="day">月曜日</span>
+                            <span class="time">10:30 ～ 19:30</span>
+                        </div>
+                        <div class="hour-item">
+                            <span class="day">火曜日</span>
+                            <span class="time">10:30 ～ 19:30</span>
+                        </div>
+                        <div class="hour-item">
+                            <span class="day">水曜日</span>
+                            <span class="time">10:30 ～ 19:30</span>
+                        </div>
+                        <div class="hour-item">
+                            <span class="day">木曜日</span>
+                            <span class="time">10:30 ～ 19:30</span>
+                        </div>
+                        <div class="hour-item">
+                            <span class="day">金曜日</span>
+                            <span class="time">10:30 ～ 19:30</span>
+                        </div>
+                        <div class="hour-item weekend">
+                            <span class="day">土曜日</span>
+                            <span class="time">09:30 ～ 18:30</span>
+                        </div>
+                        <div class="hour-item weekend">
+                            <span class="day">日曜日</span>
+                            <span class="time">09:30 ～ 18:30</span>
+                        </div>
+                        <div class="hour-item weekend">
+                            <span class="day">祝日</span>
+                            <span class="time">09:30 ～ 18:30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- アクセス情報 -->
+                <div class="access-info">
+                    <h3>アクセス方法</h3>
+                    
+                    <div class="access-section">
+                        <h4>🚃 電車でお越しの方</h4>
+                        <p>東海道 東静岡駅北口より徒歩1分。<br>
+                        静岡鉄道柚木駅・長沼駅より徒歩9分。</p>
+                    </div>
+                    
+                    <div class="access-section">
+                        <h4>🚗 お車でお越しの方</h4>
+                        <p>清水IC 静岡IC 新静岡IC各方面より15分。<br>
+                        国道1号線バイパス千代田上土より10分。静岡駅より10分。</p>
+                        
+                        <div class="car-note">
+                            <strong>※カーナビをご利用の方</strong><br>
+                            国道1号線のマークイズ静岡を目指してください。<br>
+                            国道1号線からマークイズ静岡横、東静岡大橋の側道を抜けて左折してください。
+                        </div>
+                        
+                        <div class="parking-info">
+                            <strong>🅿️ 駐車場240台完備</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <h2 class="menu-title">メニューを選択してください</h2>
+                <div id="menu-grid" class="menu-grid">
+                    <div class="loading">メニューを読み込んでいます...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日時選択ページ -->
+    <div id="datetime-page" class="page">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title">日時を選択してください</div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="changeMonth(-1)">◀</button>
+                    <div class="month-year" id="month-year"></div>
+                    <button class="calendar-nav" onclick="changeMonth(1)">▶</button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <div id="time-slots-container" style="display: none;">
+                <h3 style="color: #f8f6f0; margin-bottom: 15px; text-align: center;">時間を選択してください</h3>
+                <div class="time-slots" id="time-slots"></div>
+            </div>
+
+            <button class="next-button" id="datetime-next-button" onclick="goToInfoPage()">次へ</button>
+        </div>
+    </div>
+
+    <!-- 情報入力ページ -->
+    <div id="info-page" class="page">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title">お客様情報を入力してください</div>
+            </div>
+
+            <div class="form-container">
+                <div class="form-group">
+                    <label class="form-label">姓 *</label>
+                    <input type="text" class="form-input" id="last-name" placeholder="例：山田" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">名 *</label>
+                    <input type="text" class="form-input" id="first-name" placeholder="例：太郎" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">メールアドレス *</label>
+                    <input type="email" class="form-input" id="email" placeholder="example@email.com" required>
+                </div>
+
+                <button class="add-companion-button" onclick="addCompanion()">
+                    同行者を追加する（最大3人まで）
+                </button>
+
+                <div id="companions-container"></div>
+
+                <div class="button-group">
+                    <button class="back-button" onclick="goToDatetimePage()">戻る</button>
+                    <button class="confirm-button" onclick="goToConfirmPage()">確認</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認ページ -->
+    <div id="confirm-page" class="page">
+        <div class="container">
+            <div class="page-header">
+                <div class="page-title">予約内容を確認してください</div>
+            </div>
+
+            <div class="confirmation-section">
+                <div class="confirmation-title">予約情報</div>
+                <div id="confirmation-details"></div>
+            </div>
+
+            <div class="reservation-notes">
+                <h4>予約に関する注意事項</h4>
+                <ul>
+                    <li>予約受付締切：前日の23:59まで</li>
+                    <li>キャンセル締切：1時間前まで</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button class="back-button" onclick="goToInfoPage()">戻る</button>
+                <button class="confirm-button" onclick="submitReservation()">予約する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完了ページ -->
+    <div id="completion-page" class="page">
+        <div class="container">
+            <div class="completion-container">
+                <div class="completion-title">予約が完了しました</div>
+                <div class="reservation-number" id="completion-reservation-number"></div>
+                <div id="completion-details"></div>
+                <div class="completion-message">
+                    この度はご予約ありがとうございます。<br>
+                    お客様のご来店を心よりお待ちしております。
+                </div>
+                <a href="#" class="check-reservation-button" onclick="goToReservationCheck()">
+                    ご予約の確認・変更はこちらから
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
