@@ -1087,8 +1087,8 @@ body {
     
     .header-logo .logo-image,
     .header-logo img {
-        height: 50px !important;
-        max-height: 50px !important;
+        height: 180px !important;
+        max-height: 110px !important;
     }
     
     .header-logo::after {
