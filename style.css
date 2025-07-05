@@ -51,7 +51,7 @@ body {
 .header-logo {
     width: auto !important;
     height: 700px !important;
-    max-height: 290px !important;
+    max-height: 280px !important;
     background: transparent !important;
     border-radius: 8px !important;
     display: flex !important;
@@ -70,7 +70,7 @@ body {
 .header-logo .logo-image,
 .header-logo img {
     height: 700px !important;
-    max-height: 290px !important;
+    max-height: 280px !important;
     width: auto !important;
     max-width: none !important;
     object-fit: contain !important;
