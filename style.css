@@ -70,8 +70,8 @@ body {
 
 .header-logo .logo-image,
 .header-logo img {
-    height: 60px !important;
-    max-height: 60px !important;
+    height: 180px !important;
+    max-height: 110px !important;
     width: auto !important;
     max-width: none !important;
     object-fit: contain !important;
