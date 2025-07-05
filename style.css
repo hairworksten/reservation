@@ -899,8 +899,8 @@ body {
     
     .header-logo .logo-image,
     .header-logo img {
-        height: 60px !important;
-        max-height: 60px !important;
+        height: 700px !important;
+        max-height: 280px !important;
     }
     
     .button-group {
