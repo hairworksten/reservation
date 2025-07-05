@@ -1,4 +1,90 @@
-/* Hair Works天 予約サイト - 完全版スタイルシート */
+/* アクセス情報 */
+.access-info {
+    background: #1a2a42;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.access-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.access-section {
+    padding: 15px;
+    background: rgba(255, 140, 66, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #ff8c42;
+}
+
+.access-subtitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff8c42;
+    margin-bottom: 10px;
+}
+
+.access-text {
+    color: #ffffff;
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.navigation-note {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(255, 140, 66, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 140, 66, 0.3);
+}
+
+.note-title {
+    font-weight: bold;
+    color: #ff8c42;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.note-text {
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.parking-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+    border-radius: 8px;
+    border: 2px solid #4CAF50;
+}
+
+.parking-icon {
+    font-size: 20px;
+}
+
+.parking-text {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff8c42;
+    margin-bottom: 20px;
+    text-align: center;
+}/* Hair Works天 予約サイト - 完全版スタイルシート */
 
 /* ベースリセット & Safari対応 */
 * {
@@ -18,6 +104,7 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     color-scheme: dark;
+    overflow-x: hidden;
 }
 
 /* ヘッダー */
@@ -28,7 +115,7 @@ body {
     right: 0;
     background: #0f1a2e;
     z-index: 1000;
-    padding: 10px 0;
+    padding: 5px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid #ff8c42;
 }
@@ -41,8 +128,8 @@ body {
     display: -webkit-flex !important;
     display: -ms-flexbox !important;
     align-items: center !important;
-    justify-content: center !important;
-    height: 80px !important;
+    justify-content: space-between !important;
+    height: 70px !important;
     -webkit-box-sizing: border-box !important;
     -moz-box-sizing: border-box !important;
     box-sizing: border-box !important;
@@ -50,8 +137,8 @@ body {
 
 .header-logo {
     width: auto !important;
-    height: 70px !important;
-    max-height: 70px !important;
+    height: 60px !important;
+    max-height: 60px !important;
     background: transparent !important;
     border-radius: 8px !important;
     display: flex !important;
@@ -59,7 +146,7 @@ body {
     display: -ms-flexbox !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
     color: #ffffff !important;
     position: relative !important;
@@ -69,8 +156,8 @@ body {
 
 .header-logo .logo-image,
 .header-logo img {
-    height: 70px !important;
-    max-height: 70px !important;
+    height: 60px !important;
+    max-height: 60px !important;
     width: auto !important;
     max-width: none !important;
     object-fit: contain !important;
@@ -88,7 +175,7 @@ body {
     white-space: nowrap !important;
     display: block !important;
     color: #ffffff !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
 }
 
@@ -96,11 +183,43 @@ body {
     display: none !important;
 }
 
+/* ヘッダー予約ボタン */
+.header-reservation-button {
+    background: #ff8c42 !important;
+    color: #0a1628 !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    min-height: 36px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+.header-reservation-button:hover,
+.header-reservation-button:focus {
+    background: #e67a35 !important;
+    outline: 2px solid #ff8c42 !important;
+    outline-offset: 2px !important;
+}
+
 /* メインコンテナ */
 .container {
     max-width: 480px;
     margin: 0 auto;
-    padding: 110px 20px 20px;
+    padding: 90px 20px 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .page-header {
@@ -133,31 +252,28 @@ body {
 .shop-name {
     font-size: 26px;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     color: #ffffff;
     text-align: center;
 }
 
-.shop-image {
-    margin: 20px 0;
+.shop-subtitle {
+    font-size: 16px;
+    color: #ff8c42;
     text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
-.shop-photo {
-    width: 100%;
-    max-width: 400px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border: 2px solid #ff8c42;
-    transition: transform 0.2s ease;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
-
-.shop-photo:hover {
-    transform: translateY(-2px);
+.shop-catchphrase {
+    font-size: 15px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 140, 66, 0.1);
+    border-radius: 8px;
+    border: 1px solid #ff8c42;
 }
 
 .shop-address {
@@ -189,17 +305,159 @@ body {
     background: #e67a35;
 }
 
+/* 重要なお知らせ */
+.important-notices {
+    background: #1a2a42;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notice-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notice-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 140, 66, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #ff8c42;
+}
+
+.notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notice-text {
+    color: #ffffff;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* 営業時間 */
+.business-hours {
+    background: #1a2a42;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hours-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.hours-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #243552;
+    border-radius: 8px;
+    border-left: 4px solid #ff8c42;
+}
+
+.hours-item.weekend {
+    border-left-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.hours-item.holiday {
+    border-left-color: #FF9800;
+    background: rgba(255, 152, 0, 0.1);
+}
+
+.day-label {
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.time-value {
+    color: #ff8c42;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.hours-item.weekend .time-value {
+    color: #4CAF50;
+}
+
+.hours-item.holiday .time-value {
+    color: #FF9800;
+}
+
+/* メイン予約ボタン */
+.main-reservation-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.main-reservation-button {
+    background: linear-gradient(135deg, #ff8c42, #e67a35);
+    color: #ffffff;
+    border: none;
+    padding: 20px 40px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(255, 140, 66, 0.3);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    min-height: 60px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.main-reservation-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 140, 66, 0.4);
+    background: linear-gradient(135deg, #e67a35, #d66a25);
+}
+
+.button-icon {
+    font-size: 20px;
+}
+
+.button-text {
+    font-size: 16px;
+}
+
+.button-arrow {
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.main-reservation-button:hover .button-arrow {
+    transform: translateX(3px);
+}
+
 /* メニューセクション */
 .menu-section {
     margin-bottom: 30px;
-}
-
-.menu-title {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 25px;
-    color: #ffffff;
-    text-align: center;
 }
 
 .menu-grid {
@@ -374,11 +632,12 @@ body {
 /* カレンダー */
 .calendar-container {
     background: #1a2a42;
-    padding: 25px;
+    padding: 20px;
     border-radius: 10px;
     margin-bottom: 25px;
     border: 1px solid #ff8c42;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
 }
 
 .calendar-header {
@@ -387,17 +646,18 @@ body {
     display: -ms-flexbox;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .calendar-nav {
     background: #ff8c42;
     color: #0a1628;
     border: none;
-    padding: 12px 18px;
+    padding: 10px 14px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     transition: background-color 0.2s ease;
     -webkit-appearance: none;
@@ -407,8 +667,9 @@ body {
     -moz-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 40px;
+    min-width: 40px;
+    flex-shrink: 0;
 }
 
 .calendar-nav:hover,
@@ -419,9 +680,19 @@ body {
 }
 
 .month-year {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     color: #ffffff;
+    text-align: center;
+    flex-grow: 1;
+}
+
+/* カレンダーラッパー（はみ出し防止） */
+.calendar-wrapper {
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+    max-width: 100%;
 }
 
 .calendar-grid {
@@ -431,7 +702,10 @@ body {
     -webkit-grid-template-columns: repeat(7, 1fr);
     -ms-grid-template-columns: repeat(7, 1fr);
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .calendar-day {
@@ -441,16 +715,18 @@ body {
     display: -ms-flexbox;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     background: #243552;
     color: #ffffff;
     border: 1px solid transparent;
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 36px;
+    min-width: 36px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .calendar-day:hover {
@@ -481,9 +757,9 @@ body {
 .calendar-day.holiday::after {
     content: "休";
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    font-size: 8px;
+    bottom: 1px;
+    right: 1px;
+    font-size: 7px;
     color: #ff4757;
     font-weight: bold;
 }
@@ -494,20 +770,43 @@ body {
 }
 
 /* 時間スロット */
+.time-slots-container {
+    background: #1a2a42;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #ff8c42;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.time-slots-container.show {
+    display: block;
+}
+
+.time-selection-title {
+    color: #ffffff;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .time-slots {
     display: grid;
     display: -webkit-grid;
     display: -ms-grid;
-    -webkit-grid-template-columns: repeat(2, 1fr);
-    -ms-grid-template-columns: repeat(2, 1fr);
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 25px;
+    -webkit-grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    -ms-grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .time-slot {
     background: #243552;
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
     text-align: center;
     cursor: pointer;
@@ -521,6 +820,8 @@ body {
     display: -ms-flexbox;
     align-items: center;
     justify-content: center;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .time-slot:hover {
@@ -596,6 +897,7 @@ body {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -885,7 +1187,7 @@ body {
 /* レスポンシブ対応 */
 @media screen and (max-width: 768px) {
     .container {
-        padding: 100px 16px 16px !important;
+        padding: 80px 16px 16px !important;
     }
     
     .header-content {
@@ -893,14 +1195,42 @@ body {
     }
     
     .header-logo {
-        height: 60px !important;
-        max-height: 60px !important;
+        height: 50px !important;
+        max-height: 50px !important;
     }
     
     .header-logo .logo-image,
     .header-logo img {
-        height: 60px !important;
-        max-height: 60px !important;
+        height: 50px !important;
+        max-height: 50px !important;
+    }
+    
+    .header-logo::after {
+        font-size: 12px !important;
+    }
+    
+    .header-reservation-button {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        min-height: 32px !important;
+    }
+    
+    .main-reservation-button {
+        padding: 16px 32px !important;
+        font-size: 16px !important;
+        max-width: 280px !important;
+    }
+    
+    .button-icon {
+        font-size: 18px !important;
+    }
+    
+    .button-text {
+        font-size: 14px !important;
+    }
+    
+    .button-arrow {
+        font-size: 16px !important;
     }
     
     .button-group {
@@ -917,10 +1247,200 @@ body {
         width: 100% !important;
     }
     
+    .calendar-container {
+        padding: 15px !important;
+    }
+    
+    .calendar-grid {
+        gap: 3px !important;
+    }
+    
+    .calendar-day {
+        min-height: 32px !important;
+        min-width: 32px !important;
+        font-size: 12px !important;
+    }
+    
     .time-slots {
-        -webkit-grid-template-columns: 1fr !important;
-        -ms-grid-template-columns: 1fr !important;
-        grid-template-columns: 1fr !important;
+        -webkit-grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+        -ms-grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+        gap: 8px !important;
+    }
+    
+    .time-slot {
+        font-size: 13px !important;
+        padding: 10px !important;
+    }
+    
+    /* 新しい要素のモバイル対応 */
+    .shop-subtitle {
+        font-size: 14px !important;
+    }
+    
+    .shop-catchphrase {
+        font-size: 13px !important;
+        padding: 8px !important;
+    }
+    
+    .notice-item {
+        padding: 12px !important;
+        gap: 10px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .notice-icon {
+        font-size: 16px !important;
+        align-self: flex-start !important;
+    }
+    
+    .notice-text {
+        font-size: 13px !important;
+    }
+    
+    .hours-item {
+        padding: 10px 12px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 5px !important;
+    }
+    
+    .day-label,
+    .time-value {
+        font-size: 14px !important;
+    }
+    
+    .access-section {
+        padding: 12px !important;
+    }
+    
+    .access-subtitle {
+        font-size: 15px !important;
+    }
+    
+    .access-text {
+        font-size: 13px !important;
+    }
+    
+    .navigation-note {
+        margin-top: 10px !important;
+        padding: 10px !important;
+    }
+    
+    .note-title,
+    .note-text {
+        font-size: 12px !important;
+    }
+    
+    .parking-info {
+        padding: 12px !important;
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+    
+    .parking-text {
+        font-size: 14px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .header-content {
+        height: 60px !important;
+    }
+    
+    .container {
+        padding: 70px 12px 12px !important;
+    }
+    
+    .calendar-grid {
+        gap: 2px !important;
+    }
+    
+    .calendar-day {
+        min-height: 28px !important;
+        min-width: 28px !important;
+        font-size: 11px !important;
+    }
+    
+    /* 新しい要素の極小画面対応 */
+    .shop-name {
+        font-size: 22px !important;
+    }
+    
+    .shop-subtitle {
+        font-size: 13px !important;
+    }
+    
+    .shop-catchphrase {
+        font-size: 12px !important;
+        padding: 6px !important;
+    }
+    
+    .important-notices,
+    .business-hours,
+    .access-info {
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .section-title {
+        font-size: 18px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .notice-item {
+        padding: 10px !important;
+        gap: 8px !important;
+    }
+    
+    .notice-text {
+        font-size: 12px !important;
+        line-height: 1.5 !important;
+    }
+    
+    .hours-item {
+        padding: 8px 10px !important;
+    }
+    
+    .day-label,
+    .time-value {
+        font-size: 13px !important;
+    }
+    
+    .access-section {
+        padding: 10px !important;
+    }
+    
+    .access-subtitle {
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .access-text {
+        font-size: 12px !important;
+    }
+    
+    .navigation-note {
+        margin-top: 8px !important;
+        padding: 8px !important;
+    }
+    
+    .note-title,
+    .note-text {
+        font-size: 11px !important;
+    }
+    
+    .parking-info {
+        padding: 10px !important;
+    }
+    
+    .parking-icon {
+        font-size: 18px !important;
+    }
+    
+    .parking-text {
+        font-size: 13px !important;
     }
 }
 
