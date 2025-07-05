@@ -751,9 +751,9 @@ async function submitReservation() {
             });
         }
         
-        await saveMultipleReservations([mainReservation, ...companionReservations]);
+        const result = await saveMultipleReservations([mainReservation, ...companionReservations]);
         
-        displayCompletionDetails(mainReservation, companionReservations);
+        displayCompletionDetails(mainReservation, companionReservations, result.email_sent);
         goToCompletionPage();
         
     } catch (error) {
@@ -763,7 +763,7 @@ async function submitReservation() {
 }
 
 // 完了画面の詳細表示
-function displayCompletionDetails(mainReservation, companionReservations) {
+function displayCompletionDetails(mainReservation, companionReservations, emailSent = false) {
     document.getElementById('completion-reservation-number').textContent = `予約番号: ${mainReservation.reservationNumber}`;
     
     let html = `
@@ -811,6 +811,34 @@ function displayCompletionDetails(mainReservation, companionReservations) {
             `;
         });
         html += '</div>';
+    }
+    
+    // メール送信状況の表示
+    if (emailSent) {
+        html += `
+            <div class="confirmation-section">
+                <div class="confirmation-title">✅ 確認メール送信完了</div>
+                <div class="confirmation-item">
+                    <span class="confirmation-label">送信先</span>
+                    <span class="confirmation-value">${mainReservation.mail}</span>
+                </div>
+                <div style="color: #4CAF50; font-size: 14px; margin-top: 10px;">
+                    ご予約の詳細を記載した確認メールを送信いたしました。<br>
+                    メールが届かない場合は、迷惑メールフォルダもご確認ください。
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="confirmation-section">
+                <div class="confirmation-title">⚠️ メール送信について</div>
+                <div style="color: #ff8c42; font-size: 14px;">
+                    確認メールの送信に失敗しました。<br>
+                    予約は正常に完了しております。<br>
+                    詳細は上記の予約番号でご確認いただけます。
+                </div>
+            </div>
+        `;
     }
     
     document.getElementById('completion-details').innerHTML = html;
