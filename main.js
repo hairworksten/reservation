@@ -121,7 +121,7 @@ function validateInfoForm() {
         const firstName = document.getElementById(`${companion.id}-first-name`).value.trim();
         
         if (!menu || !lastName || !firstName) {
-            alert(`同行者 ${i + 1} の情報を入力してください。`);
+            alert(`同行者の情報を入力してください。`);
             return false;
         }
         
