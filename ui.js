@@ -225,7 +225,7 @@ function selectTime(time) {
 // 同行者追加
 function addCompanion() {
     if (companions.length >= APP_CONFIG.maxCompanions) {
-        alert('同行者は最大3人まで追加できます。');
+        alert('同行者は最大1名まで追加できます。');
         return;
     }
     
