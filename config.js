@@ -24,3 +24,29 @@ const APP_CONFIG = {
 
 // グローバル変数の初期化
 let currentPage = 'top-page';
+let selectedMenu = null;
+let selectedDate = null;
+let selectedTime = null;
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let companions = [];
+let menus = {};
+let holidays = [];
+let reservations = [];
+
+// 月名配列
+const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+
+// 曜日配列
+const DAY_HEADERS = ['日', '月', '火', '水', '木', '金', '土'];
+
+// エラーメッセージ
+const ERROR_MESSAGES = {
+    menuLoadFailed: 'メニューの読み込みに失敗しました',
+    holidayLoadFailed: '休業日データの取得に失敗しました',
+    reservationLoadFailed: '予約データの読み込みに失敗しました',
+    reservationSubmitFailed: '予約の送信に失敗しました',
+    networkError: 'ネットワークエラーが発生しました',
+    validationError: '入力内容に不備があります',
+    timeSlotUnavailable: '選択された時間は既に予約済みです'
+};
