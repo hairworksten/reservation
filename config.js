@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app
 
 // アプリケーション設定
 const APP_CONFIG = {
-    maxCompanions: 3,
+    maxCompanions: 1, // 最大同行者数を1名に変更
     maxAdvanceBookingDays: 30,
     cancelDeadlineHours: 1,
     reservationCutoffTime: '23:59',
