@@ -42,75 +42,46 @@ async function loadMenus() {
 }
 
 // 重要なお知らせデータの読み込み
+// シンプル版の loadNotices 関数
+// 既存のapi.jsのloadNotices関数をこれに置き換えてください
+
 async function loadNotices() {
     console.log('=== loadNotices() 開始 ===');
-    console.log('API_BASE_URL:', API_BASE_URL);
-    
-    const noticeContent = document.querySelector('.notice-content');
-    if (!noticeContent) {
-        console.error('notice-content要素が見つかりません');
-        return;
-    }
     
     try {
-        console.log('重要なお知らせデータを取得中...');
         const url = `${API_BASE_URL}/notices`;
         console.log('リクエストURL:', url);
         
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        console.log('レスポンス受信:', response.status, response.statusText);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch(url);
+        console.log('レスポンス:', response.status);
         
         const data = await response.json();
-        console.log('レスポンスデータ:', data);
+        console.log('取得データ:', data);
         
-        if (data.success && Array.isArray(data.notices)) {
+        if (data.success && data.notices) {
             notices = data.notices;
-            console.log('重要なお知らせデータを正常に読み込みました:', notices);
+            console.log('notices配列に設定:', notices);
             displayNotices();
         } else {
-            console.warn('お知らせデータの形式が正しくありません:', data);
-            throw new Error('お知らせデータの形式が正しくありません');
+            console.error('データ形式エラー:', data);
+            // デフォルトのお知らせを設定
+            notices = [
+                { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
+                { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
+                { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
+            ];
+            displayNotices();
         }
         
     } catch (error) {
-        console.error('重要なお知らせの読み込みに失敗しました:', error);
-        notices = [];
-        
-        // デフォルトのお知らせを表示
-        const defaultNotices = [
+        console.error('loadNotices エラー:', error);
+        // デフォルトのお知らせを設定
+        notices = [
             { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
             { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
             { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
         ];
-        notices = defaultNotices;
-        console.log('デフォルトのお知らせを設定:', notices);
-        
-        // エラー表示とデフォルト表示の選択
-        if (error.message.includes('HTTP error')) {
-            // API接続エラーの場合はエラー表示
-            noticeContent.innerHTML = `
-                <div class="error">
-                    <p>重要なお知らせを取得できませんでした。</p>
-                    <p>エラー: ${error.message}</p>
-                    <button onclick="retryLoadNotices()" class="select-button" style="margin-top: 15px;">再試行</button>
-                </div>
-            `;
-        } else {
-            // データ形式エラーの場合はデフォルトを表示
-            displayNotices();
-        }
-        
-        console.warn('デフォルトのお知らせを表示しました');
+        displayNotices();
     }
     
     console.log('=== loadNotices() 終了 ===');
