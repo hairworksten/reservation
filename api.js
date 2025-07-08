@@ -43,26 +43,42 @@ async function loadMenus() {
 
 // 重要なお知らせデータの読み込み
 async function loadNotices() {
+    console.log('=== loadNotices() 開始 ===');
+    console.log('API_BASE_URL:', API_BASE_URL);
+    
+    const noticeContent = document.querySelector('.notice-content');
+    if (!noticeContent) {
+        console.error('notice-content要素が見つかりません');
+        return;
+    }
+    
     try {
         console.log('重要なお知らせデータを取得中...');
-        const response = await fetch(`${API_BASE_URL}/notices`, {
+        const url = `${API_BASE_URL}/notices`;
+        console.log('リクエストURL:', url);
+        
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         });
         
+        console.log('レスポンス受信:', response.status, response.statusText);
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('レスポンスデータ:', data);
         
         if (data.success && Array.isArray(data.notices)) {
             notices = data.notices;
             console.log('重要なお知らせデータを正常に読み込みました:', notices);
             displayNotices();
         } else {
+            console.warn('お知らせデータの形式が正しくありません:', data);
             throw new Error('お知らせデータの形式が正しくありません');
         }
         
@@ -77,14 +93,32 @@ async function loadNotices() {
             { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
         ];
         notices = defaultNotices;
-        displayNotices();
+        console.log('デフォルトのお知らせを設定:', notices);
+        
+        // エラー表示とデフォルト表示の選択
+        if (error.message.includes('HTTP error')) {
+            // API接続エラーの場合はエラー表示
+            noticeContent.innerHTML = `
+                <div class="error">
+                    <p>重要なお知らせを取得できませんでした。</p>
+                    <p>エラー: ${error.message}</p>
+                    <button onclick="retryLoadNotices()" class="select-button" style="margin-top: 15px;">再試行</button>
+                </div>
+            `;
+        } else {
+            // データ形式エラーの場合はデフォルトを表示
+            displayNotices();
+        }
         
         console.warn('デフォルトのお知らせを表示しました');
     }
+    
+    console.log('=== loadNotices() 終了 ===');
 }
 
 // 重要なお知らせの再取得
 async function retryLoadNotices() {
+    console.log('=== retryLoadNotices() 開始 ===');
     const noticesContainer = document.querySelector('.notice-content');
     if (noticesContainer) {
         noticesContainer.innerHTML = '<div class="loading">重要なお知らせを再取得しています...</div>';
@@ -96,6 +130,7 @@ async function retryLoadNotices() {
     } catch (error) {
         console.error('重要なお知らせの再取得に失敗しました:', error);
     }
+    console.log('=== retryLoadNotices() 終了 ===');
 }
 
 // 休業日データの読み込み
