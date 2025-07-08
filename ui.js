@@ -31,14 +31,20 @@ function showPage(pageId) {
 
 // 重要なお知らせの表示
 function displayNotices() {
+    console.log('=== displayNotices() 開始 ===');
+    console.log('notices配列:', notices);
+    
     const noticeContent = document.querySelector('.notice-content');
     
     if (!noticeContent) {
-        console.warn('notice-content要素が見つかりません');
+        console.error('notice-content要素が見つかりません');
         return;
     }
     
+    console.log('notice-content要素が見つかりました');
+    
     if (!notices || notices.length === 0) {
+        console.warn('notices配列が空です');
         noticeContent.innerHTML = `
             <div class="error">
                 <p>重要なお知らせを取得できませんでした。</p>
@@ -48,21 +54,31 @@ function displayNotices() {
         return;
     }
     
+    console.log('お知らせを表示開始:', notices.length, '件');
     noticeContent.innerHTML = '';
     
-    notices.forEach(notice => {
+    notices.forEach((notice, index) => {
+        console.log(`お知らせ${index + 1}:`, notice);
+        
         const noticeItem = document.createElement('div');
         noticeItem.className = 'notice-item';
         
+        // notice.iconとnotice.textが存在するかチェック
+        const icon = notice.icon || '📝';
+        const text = notice.text || 'お知らせ内容が設定されていません';
+        
         noticeItem.innerHTML = `
-            <span class="notice-icon">${notice.icon}</span>
-            <span class="notice-text">${notice.text}</span>
+            <span class="notice-icon">${icon}</span>
+            <span class="notice-text">${text}</span>
         `;
         
         noticeContent.appendChild(noticeItem);
+        console.log(`お知らせ${index + 1}を追加しました`);
     });
     
     console.log(`${notices.length}件の重要なお知らせを表示しました`);
+    console.log('最終的なnoticeContentのHTML:', noticeContent.innerHTML);
+    console.log('=== displayNotices() 終了 ===');
 }
 
 // メニューの表示
