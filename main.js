@@ -1,26 +1,26 @@
-// Hair Works天 予約サイト - メイン処理（緊急対応版）
+// Hair Works天 予約サイト - メイン処理
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOMContentLoaded 開始 ===');
+    
+    // 各関数を順番に呼び出し
     loadMenus();
+    console.log('loadMenus() を呼び出しました');
     
-    // 重要なお知らせの緊急対応: 3秒後にデフォルト表示
-    setTimeout(() => {
-        if (!notices || notices.length === 0) {
-            console.log('緊急対応: デフォルトのお知らせを表示します');
-            notices = [
-                { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
-                { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
-                { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
-            ];
-            displayNotices();
-        }
-    }, 3000);
+    loadNotices(); // 重要なお知らせの読み込み
+    console.log('loadNotices() を呼び出しました');
     
-    loadNotices(); // 重要なお知らせの読み込みを追加
     initCalendar();
+    console.log('initCalendar() を呼び出しました');
+    
     loadHolidays();
+    console.log('loadHolidays() を呼び出しました');
+    
     initLogoDisplay();
+    console.log('initLogoDisplay() を呼び出しました');
+    
+    console.log('=== DOMContentLoaded 完了 ===');
 });
 
 // ページ遷移関数群
