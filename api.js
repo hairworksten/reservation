@@ -41,6 +41,63 @@ async function loadMenus() {
     }
 }
 
+// 重要なお知らせデータの読み込み
+async function loadNotices() {
+    try {
+        console.log('重要なお知らせデータを取得中...');
+        const response = await fetch(`${API_BASE_URL}/notices`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && Array.isArray(data.notices)) {
+            notices = data.notices;
+            console.log('重要なお知らせデータを正常に読み込みました:', notices);
+            displayNotices();
+        } else {
+            throw new Error('お知らせデータの形式が正しくありません');
+        }
+        
+    } catch (error) {
+        console.error('重要なお知らせの読み込みに失敗しました:', error);
+        notices = [];
+        
+        // デフォルトのお知らせを表示
+        const defaultNotices = [
+            { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
+            { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
+            { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
+        ];
+        notices = defaultNotices;
+        displayNotices();
+        
+        console.warn('デフォルトのお知らせを表示しました');
+    }
+}
+
+// 重要なお知らせの再取得
+async function retryLoadNotices() {
+    const noticesContainer = document.querySelector('.notice-content');
+    if (noticesContainer) {
+        noticesContainer.innerHTML = '<div class="loading">重要なお知らせを再取得しています...</div>';
+    }
+    
+    try {
+        await loadNotices();
+        console.log('重要なお知らせの再取得が成功しました');
+    } catch (error) {
+        console.error('重要なお知らせの再取得に失敗しました:', error);
+    }
+}
+
 // 休業日データの読み込み
 async function loadHolidays() {
     try {
