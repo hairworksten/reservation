@@ -33,6 +33,7 @@ let companions = [];
 let menus = {};
 let holidays = [];
 let reservations = [];
+let notices = []; // 重要なお知らせ用グローバル変数を追加
 
 // 月名配列
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
@@ -43,6 +44,7 @@ const DAY_HEADERS = ['日', '月', '火', '水', '木', '金', '土'];
 // エラーメッセージ
 const ERROR_MESSAGES = {
     menuLoadFailed: 'メニューの読み込みに失敗しました',
+    noticeLoadFailed: '重要なお知らせの読み込みに失敗しました',
     holidayLoadFailed: '休業日データの取得に失敗しました',
     reservationLoadFailed: '予約データの読み込みに失敗しました',
     reservationSubmitFailed: '予約の送信に失敗しました',
