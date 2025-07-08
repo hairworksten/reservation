@@ -1,8 +1,23 @@
-// Hair Works天 予約サイト - メイン処理
+// Hair Works天 予約サイト - メイン処理（緊急対応版）
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
     loadMenus();
+    
+    // 重要なお知らせの緊急対応: 3秒後にデフォルト表示
+    setTimeout(() => {
+        if (!notices || notices.length === 0) {
+            console.log('緊急対応: デフォルトのお知らせを表示します');
+            notices = [
+                { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
+                { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
+                { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
+            ];
+            displayNotices();
+        }
+    }, 3000);
+    
+    loadNotices(); // 重要なお知らせの読み込みを追加
     initCalendar();
     loadHolidays();
     initLogoDisplay();
