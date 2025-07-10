@@ -184,6 +184,12 @@ function updateCalendar() {
         const cellDate = new Date(currentYear, currentMonth, day);
         const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
+        // 祝日判定を追加
+        const isHoliday = japaneseHolidays.includes(dateString);
+        if (isHoliday) {
+            dayCell.classList.add('japanese-holiday');
+        }
+        
         if (cellDate < tomorrow) {
             dayCell.classList.add('disabled');
             dayCell.title = '過去の日付は選択できません';
@@ -203,14 +209,15 @@ function updateCalendar() {
                 // 平日・土日祝を示すツールチップを追加
                 const isWeekend = isWeekendOrHoliday(dateString);
                 const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
-                dayCell.title = `${dateString}を選択 (${timeInfo})`;
+                const dayType = isWeekend ? '土日祝' : '平日';
+                dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
             }
         }
         
         calendarGrid.appendChild(dayCell);
     }
     
-    console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件 (${holidays.join(', ')})`);
+    console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件, 祝日: ${japaneseHolidays.length}件`);
 }
 
 // 日付選択
@@ -235,19 +242,29 @@ async function displayTimeSlots(date) {
     timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
     
     try {
+        // バックエンドから時間スロット情報を取得
+        const slotInfo = await getAvailableTimeSlots(date);
+        
+        if (slotInfo.isHoliday) {
+            timeSlots.innerHTML = '<div class="error">この日は休業日です。</div>';
+            return;
+        }
+        
+        // 予約状況を取得
         await loadReservations(date);
         
         timeSlots.innerHTML = '';
         
-        // 指定日付に対応する時間スロットを取得
-        const availableTimeSlots = getTimeSlotsForDate(date);
-        const isWeekend = isWeekendOrHoliday(date);
+        // バックエンドから取得した時間スロットを使用
+        const availableTimeSlots = slotInfo.timeslots || getTimeSlotsForDate(date);
+        const isWeekend = slotInfo.isWeekend !== undefined ? slotInfo.isWeekend : isWeekendOrHoliday(date);
         
         // 時間スロットのタイトルを更新
         const timeSelectionTitle = document.querySelector('.time-selection-title');
         if (timeSelectionTitle) {
             const dayType = isWeekend ? '土日祝' : '平日';
-            timeSelectionTitle.textContent = `時間を選択してください（${dayType}）`;
+            const businessHours = slotInfo.businessHours || APP_CONFIG.businessHours[isWeekend ? 'weekend' : 'weekday'];
+            timeSelectionTitle.textContent = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
         }
         
         availableTimeSlots.forEach(time => {
@@ -274,7 +291,7 @@ async function displayTimeSlots(date) {
             timeSlots.appendChild(timeSlot);
         });
         
-        console.log(`${date}の時間スロット表示完了 (${dayType}: ${availableTimeSlots.length}件)`);
+        console.log(`${date}の時間スロット表示完了 (${isWeekend ? '土日祝' : '平日'}: ${availableTimeSlots.length}件)`);
         
     } catch (error) {
         console.error('予約状況の確認に失敗しました:', error);
