@@ -41,10 +41,62 @@ async function loadMenus() {
     }
 }
 
-// 重要なお知らせデータの読み込み
-// シンプル版の loadNotices 関数
-// 既存のapi.jsのloadNotices関数をこれに置き換えてください
+// 日本の祝日データの読み込み
+async function loadJapaneseHolidays() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/japanese-holidays`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.holidays) {
+            japaneseHolidays = data.holidays;
+            console.log('日本の祝日データを読み込みました:', japaneseHolidays);
+        }
+        
+    } catch (error) {
+        console.error('祝日データの読み込みに失敗しました:', error);
+        japaneseHolidays = [];
+    }
+}
 
+// 利用可能な時間スロットを取得
+async function getAvailableTimeSlots(date) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/timeslots/${date}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('時間スロットの取得に失敗しました:', error);
+        // フォールバック：フロントエンドの判定を使用
+        return {
+            success: false,
+            isWeekend: isWeekendOrHoliday(date),
+            timeslots: getTimeSlotsForDate(date)
+        };
+    }
+}
+
+// 重要なお知らせデータの読み込み
 async function loadNotices() {
     console.log('=== loadNotices() 開始 ===');
     
