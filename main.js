@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadNotices(); // 重要なお知らせの読み込み
     console.log('loadNotices() を呼び出しました');
     
+    // 祝日データを読み込み
+    loadJapaneseHolidays();
+    console.log('loadJapaneseHolidays() を呼び出しました');
+    
     initCalendar();
     console.log('initCalendar() を呼び出しました');
     
@@ -48,7 +52,11 @@ async function goToDatetimePage() {
     nextButton.classList.remove('show');
     
     try {
-        await loadHolidays();
+        // 祝日データと休業日データを並行して読み込み
+        await Promise.all([
+            loadJapaneseHolidays(),
+            loadHolidays()
+        ]);
         updateCalendar();
         console.log('日時選択ページの初期化が完了しました');
     } catch (error) {
