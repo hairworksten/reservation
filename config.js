@@ -10,10 +10,14 @@ const APP_CONFIG = {
     cancelDeadlineHours: 1,
     reservationCutoffTime: '23:59',
     businessHours: {
-        weekday: { start: '10:30', end: '19:30' },
-        weekend: { start: '09:30', end: '18:30' }
+        weekday: { start: '10:00', end: '19:00' },
+        weekend: { start: '09:00', end: '18:00' }
     },
-    timeSlots: ['10:30', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+    // 平日・土日祝で分けた時間スロット
+    timeSlots: {
+        weekday: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+        weekend: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']
+    },
     shopInfo: {
         name: 'Hair Works天',
         address: '〒420-0817 静岡県静岡市葵区東静岡１丁目１−５７',
@@ -21,6 +25,33 @@ const APP_CONFIG = {
         parkingSpaces: 240
     }
 };
+
+// 日付が平日か土日祝かを判定する関数
+function isWeekendOrHoliday(dateString) {
+    const date = new Date(dateString);
+    const dayOfWeek = date.getDay(); // 0=日曜日, 6=土曜日
+    
+    // 土曜日(6)または日曜日(0)の場合は土日祝扱い
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return true;
+    }
+    
+    // 祝日リストに含まれている場合も土日祝扱い
+    // ここでは簡単に、休業日以外の祝日を判定する場合は
+    // 別途祝日リストを用意する必要がありますが、
+    // 現在のシステムでは休業日として管理されているため、
+    // 土日のみで判定します
+    return false;
+}
+
+// 指定日付の時間スロットを取得する関数
+function getTimeSlotsForDate(dateString) {
+    if (isWeekendOrHoliday(dateString)) {
+        return APP_CONFIG.timeSlots.weekend;
+    } else {
+        return APP_CONFIG.timeSlots.weekday;
+    }
+}
 
 // グローバル変数の初期化
 let currentPage = 'top-page';
