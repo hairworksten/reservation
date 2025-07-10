@@ -199,7 +199,11 @@ function updateCalendar() {
                 dayCell.title = '予約は1ヶ月先まで可能です';
             } else {
                 dayCell.onclick = () => selectDate(dateString);
-                dayCell.title = `${dateString}を選択`;
+                
+                // 平日・土日祝を示すツールチップを追加
+                const isWeekend = isWeekendOrHoliday(dateString);
+                const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
+                dayCell.title = `${dateString}を選択 (${timeInfo})`;
             }
         }
         
@@ -235,7 +239,18 @@ async function displayTimeSlots(date) {
         
         timeSlots.innerHTML = '';
         
-        APP_CONFIG.timeSlots.forEach(time => {
+        // 指定日付に対応する時間スロットを取得
+        const availableTimeSlots = getTimeSlotsForDate(date);
+        const isWeekend = isWeekendOrHoliday(date);
+        
+        // 時間スロットのタイトルを更新
+        const timeSelectionTitle = document.querySelector('.time-selection-title');
+        if (timeSelectionTitle) {
+            const dayType = isWeekend ? '土日祝' : '平日';
+            timeSelectionTitle.textContent = `時間を選択してください（${dayType}）`;
+        }
+        
+        availableTimeSlots.forEach(time => {
             const timeSlot = document.createElement('div');
             timeSlot.className = 'time-slot';
             timeSlot.textContent = time;
@@ -249,13 +264,18 @@ async function displayTimeSlots(date) {
             if (isBooked) {
                 timeSlot.classList.add('disabled');
                 timeSlot.textContent += ' ✖️';
+                timeSlot.title = 'この時間は既に予約済みです';
             } else {
                 timeSlot.textContent += ' ⭕';
                 timeSlot.onclick = () => selectTime(time);
+                timeSlot.title = `${time}を選択`;
             }
             
             timeSlots.appendChild(timeSlot);
         });
+        
+        console.log(`${date}の時間スロット表示完了 (${dayType}: ${availableTimeSlots.length}件)`);
+        
     } catch (error) {
         console.error('予約状況の確認に失敗しました:', error);
         timeSlots.innerHTML = '<div class="error">予約状況の確認に失敗しました。</div>';
@@ -341,10 +361,14 @@ function displayConfirmationDetails() {
         totalPrice += menus[companion.menu].fare;
     });
     
+    // 選択された日時の詳細情報を追加
+    const isWeekend = isWeekendOrHoliday(selectedDate);
+    const dayType = isWeekend ? '土日祝' : '平日';
+    
     let html = `
         <div class="confirmation-item">
             <span class="confirmation-label">予約日時</span>
-            <span class="confirmation-value">${selectedDate} ${selectedTime}</span>
+            <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayType})</span>
         </div>
         <div class="confirmation-item">
             <span class="confirmation-label">代表者メニュー</span>
@@ -387,6 +411,10 @@ function displayConfirmationDetails() {
 function displayCompletionDetails(mainReservation, companionReservations) {
     document.getElementById('completion-reservation-number').textContent = `予約番号: ${mainReservation.reservationNumber}`;
     
+    // 日時の詳細情報を追加
+    const isWeekend = isWeekendOrHoliday(selectedDate);
+    const dayType = isWeekend ? '土日祝' : '平日';
+    
     let html = `
         <div class="confirmation-section">
             <div class="confirmation-title">店舗情報</div>
@@ -404,7 +432,7 @@ function displayCompletionDetails(mainReservation, companionReservations) {
             <div class="confirmation-title">予約詳細</div>
             <div class="confirmation-item">
                 <span class="confirmation-label">予約日時</span>
-                <span class="confirmation-value">${selectedDate} ${selectedTime}</span>
+                <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayType})</span>
             </div>
             <div class="confirmation-item">
                 <span class="confirmation-label">メニュー</span>
