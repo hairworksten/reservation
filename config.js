@@ -36,11 +36,11 @@ function isWeekendOrHoliday(dateString) {
         return true;
     }
     
-    // 祝日リストに含まれている場合も土日祝扱い
-    // ここでは簡単に、休業日以外の祝日を判定する場合は
-    // 別途祝日リストを用意する必要がありますが、
-    // 現在のシステムでは休業日として管理されているため、
-    // 土日のみで判定します
+    // 日本の祝日リストに含まれている場合
+    if (japaneseHolidays.includes(dateString)) {
+        return true;
+    }
+    
     return false;
 }
 
@@ -64,7 +64,8 @@ let companions = [];
 let menus = {};
 let holidays = [];
 let reservations = [];
-let notices = []; // 重要なお知らせ用グローバル変数を追加
+let notices = [];
+let japaneseHolidays = []; // 日本の祝日リスト
 
 // 月名配列
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
