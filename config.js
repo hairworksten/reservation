@@ -6,7 +6,8 @@ const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app
 // アプリケーション設定
 const APP_CONFIG = {
     maxCompanions: 1, // 最大同行者数を1名に変更
-    maxAdvanceBookingDays: 30,
+    minAdvanceBookingDays: 1, // 最小予約日数（1日後から予約可能）
+    maxAdvanceBookingDays: 30, // 最大予約日数（30日後まで予約可能）
     cancelDeadlineHours: 1,
     reservationCutoffTime: '23:59',
     businessHours: {
@@ -51,6 +52,34 @@ function getTimeSlotsForDate(dateString) {
     } else {
         return APP_CONFIG.timeSlots.weekday;
     }
+}
+
+// 予約可能日かを判定する関数
+function isValidReservationDate(dateString) {
+    const targetDate = new Date(dateString);
+    const today = new Date();
+    
+    // 時間をリセット（日付のみで比較）
+    today.setHours(0, 0, 0, 0);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    // 最小予約日数チェック（1日後から予約可能）
+    const minimumDate = new Date(today);
+    minimumDate.setDate(minimumDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
+    
+    if (targetDate < minimumDate) {
+        return false;
+    }
+    
+    // 最大予約日数チェック
+    const maximumDate = new Date(today);
+    maximumDate.setDate(maximumDate.getDate() + APP_CONFIG.maxAdvanceBookingDays);
+    
+    if (targetDate > maximumDate) {
+        return false;
+    }
+    
+    return true;
 }
 
 // グローバル変数の初期化
