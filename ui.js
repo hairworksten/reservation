@@ -143,7 +143,7 @@ function initCalendar() {
     updateCalendar();
 }
 
-// カレンダーの更新
+// カレンダーの更新（完全修正版）
 function updateCalendar() {
     const monthYear = document.getElementById('month-year');
     const calendarGrid = document.getElementById('calendar-grid');
@@ -165,7 +165,11 @@ function updateCalendar() {
     
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const today = new Date();
+    
+    // 日本時間での今日の日付を取得
+    const now = new Date();
+    const japanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+    const today = new Date(japanTime.getFullYear(), japanTime.getMonth(), japanTime.getDate());
     
     // 1日後の日付を計算（予約可能開始日）
     const minBookingDate = new Date(today);
@@ -174,6 +178,11 @@ function updateCalendar() {
     // 最大予約可能日を計算
     const maxBookingDate = new Date(today);
     maxBookingDate.setDate(maxBookingDate.getDate() + APP_CONFIG.maxAdvanceBookingDays);
+    
+    console.log('カレンダー更新:');
+    console.log(`今日（日本時間）: ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
+    console.log(`最小予約日: ${minBookingDate.getFullYear()}-${String(minBookingDate.getMonth() + 1).padStart(2, '0')}-${String(minBookingDate.getDate()).padStart(2, '0')}`);
+    console.log(`最大予約日: ${maxBookingDate.getFullYear()}-${String(maxBookingDate.getMonth() + 1).padStart(2, '0')}-${String(maxBookingDate.getDate()).padStart(2, '0')}`);
     
     // 空白セル
     for (let i = 0; i < firstDay; i++) {
@@ -200,13 +209,16 @@ function updateCalendar() {
         if (cellDate < minBookingDate) {
             dayCell.classList.add('disabled');
             dayCell.title = `予約は${APP_CONFIG.minAdvanceBookingDays}日後から可能です`;
+            console.log(`❌ ${dateString} は予約不可（最小予約日より前）`);
         } else if (cellDate > maxBookingDate) {
             dayCell.classList.add('disabled');
             dayCell.title = `予約は${APP_CONFIG.maxAdvanceBookingDays}日後まで可能です`;
+            console.log(`❌ ${dateString} は予約不可（最大予約日より後）`);
         } else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
             dayCell.classList.add('holiday');
             dayCell.title = '休業日です';
+            console.log(`❌ ${dateString} は予約不可（休業日）`);
         } else {
             dayCell.onclick = () => selectDate(dateString);
             
@@ -215,13 +227,14 @@ function updateCalendar() {
             const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
             const dayType = isWeekend ? '土日祝' : '平日';
             dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
+            console.log(`✅ ${dateString} は予約可能`);
         }
         
         calendarGrid.appendChild(dayCell);
     }
     
     console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件, 祝日: ${japaneseHolidays.length}件`);
-    console.log(`予約可能期間: ${minBookingDate.toISOString().split('T')[0]} ～ ${maxBookingDate.toISOString().split('T')[0]}`);
+    console.log(`予約可能期間: ${minBookingDate.getFullYear()}-${String(minBookingDate.getMonth() + 1).padStart(2, '0')}-${String(minBookingDate.getDate()).padStart(2, '0')} ～ ${maxBookingDate.getFullYear()}-${String(maxBookingDate.getMonth() + 1).padStart(2, '0')}-${String(maxBookingDate.getDate()).padStart(2, '0')}`);
 }
 
 // 日付選択
