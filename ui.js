@@ -259,18 +259,46 @@ async function displayTimeSlots(date) {
     timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
     
     try {
-        // バックエンドから時間スロット情報を取得
-        const slotInfo = await getAvailableTimeSlots(date);
+        // ui.js内で直接日付判定を行う（config.jsの関数は使わない）
+        const [year, month, day] = date.split('-').map(Number);
+        const targetDate = new Date(year, month - 1, day);
         
-        if (!slotInfo.isValidDate) {
+        // 日本時間での今日の日付を取得
+        const now = new Date();
+        const japanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+        const today = new Date(japanTime.getFullYear(), japanTime.getMonth(), japanTime.getDate());
+        
+        // 最小予約日数チェック（1日後から予約可能）
+        const minimumDate = new Date(today);
+        minimumDate.setDate(minimumDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
+        
+        // 最大予約日数チェック
+        const maximumDate = new Date(today);
+        maximumDate.setDate(maximumDate.getDate() + APP_CONFIG.maxAdvanceBookingDays);
+        
+        console.log(`displayTimeSlots 日付チェック: ${date}`);
+        console.log(`今日: ${today.toDateString()}`);
+        console.log(`対象日: ${targetDate.toDateString()}`);
+        console.log(`最小予約日: ${minimumDate.toDateString()}`);
+        console.log(`最大予約日: ${maximumDate.toDateString()}`);
+        
+        if (targetDate < minimumDate || targetDate > maximumDate) {
+            console.log('❌ 予約期間外です');
             timeSlots.innerHTML = '<div class="error">この日は予約できません。</div>';
             return;
         }
         
-        if (slotInfo.isHoliday) {
+        // 休業日チェック
+        if (holidays.includes(date)) {
+            console.log('❌ 休業日です');
             timeSlots.innerHTML = '<div class="error">この日は休業日です。</div>';
             return;
         }
+        
+        console.log('✅ 予約可能な日付です');
+        
+        // バックエンドから時間スロット情報を取得（フォールバック付き）
+        const slotInfo = await getAvailableTimeSlots(date);
         
         // 予約状況を取得
         await loadReservations(date);
