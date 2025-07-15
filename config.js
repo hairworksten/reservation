@@ -54,21 +54,26 @@ function getTimeSlotsForDate(dateString) {
     }
 }
 
-// 予約可能日かを判定する関数（修正版）
+// 予約可能日かを判定する関数（日本時間対応版）
 function isValidReservationDate(dateString) {
-    const targetDate = new Date(dateString + 'T00:00:00'); // 時刻を明示的に指定
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 時間をリセット
+    // 日本時間での今日の日付を取得
+    const now = new Date();
+    const japanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
+    const today = new Date(japanTime.getFullYear(), japanTime.getMonth(), japanTime.getDate());
+    
+    // 対象日付（YYYY-MM-DD形式）をDateオブジェクトに変換
+    const [year, month, day] = dateString.split('-').map(Number);
+    const targetDate = new Date(year, month - 1, day);
     
     console.log(`予約日チェック: ${dateString}`);
-    console.log(`今日: ${today.toISOString().split('T')[0]}`);
-    console.log(`対象日: ${targetDate.toISOString().split('T')[0]}`);
+    console.log(`今日（日本時間）: ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
+    console.log(`対象日: ${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`);
     
     // 最小予約日数チェック（1日後から予約可能）
     const minimumDate = new Date(today);
     minimumDate.setDate(minimumDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
     
-    console.log(`最小予約日: ${minimumDate.toISOString().split('T')[0]}`);
+    console.log(`最小予約日: ${minimumDate.getFullYear()}-${String(minimumDate.getMonth() + 1).padStart(2, '0')}-${String(minimumDate.getDate()).padStart(2, '0')}`);
     
     if (targetDate < minimumDate) {
         console.log('❌ 最小予約日より前です');
@@ -79,7 +84,7 @@ function isValidReservationDate(dateString) {
     const maximumDate = new Date(today);
     maximumDate.setDate(maximumDate.getDate() + APP_CONFIG.maxAdvanceBookingDays);
     
-    console.log(`最大予約日: ${maximumDate.toISOString().split('T')[0]}`);
+    console.log(`最大予約日: ${maximumDate.getFullYear()}-${String(maximumDate.getMonth() + 1).padStart(2, '0')}-${String(maximumDate.getDate()).padStart(2, '0')}`);
     
     if (targetDate > maximumDate) {
         console.log('❌ 最大予約日より後です');
