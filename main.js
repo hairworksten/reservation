@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOMContentLoaded 開始 ===');
     
     // 各関数を順番に呼び出し
+    loadReservationSettings(); // 予約設定を最初に読み込み
+    console.log('loadReservationSettings() を呼び出しました');
+    
     loadMenus();
     console.log('loadMenus() を呼び出しました');
     
@@ -52,8 +55,9 @@ async function goToDatetimePage() {
     nextButton.classList.remove('show');
     
     try {
-        // 祝日データと休業日データを並行して読み込み
+        // 予約設定、祝日データ、休業日データを並行して読み込み
         await Promise.all([
+            loadReservationSettings(),
             loadJapaneseHolidays(),
             loadHolidays()
         ]);
@@ -70,6 +74,14 @@ function goToInfoPage() {
         alert('日時を選択してください。');
         return;
     }
+    
+    // 選択された日付が予約可能かチェック
+    if (!isValidReservationDate(selectedDate)) {
+        alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        goToDatetimePage();
+        return;
+    }
+    
     showPage('info-page');
 }
 
@@ -111,7 +123,10 @@ async function changeMonth(direction) {
     calendarGrid.innerHTML = '<div class="loading">カレンダーを更新しています...</div>';
     
     try {
-        await loadHolidays();
+        await Promise.all([
+            loadReservationSettings(),
+            loadHolidays()
+        ]);
         updateCalendar();
         console.log(`${currentYear}年${currentMonth + 1}月のカレンダーを更新しました`);
     } catch (error) {
@@ -137,6 +152,13 @@ function validateInfoForm() {
         return false;
     }
     
+    // 選択された日時の再検証
+    if (!isValidReservationDate(selectedDate)) {
+        alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        goToDatetimePage();
+        return false;
+    }
+    
     for (let i = 0; i < companions.length; i++) {
         const companion = companions[i];
         const menu = document.getElementById(`${companion.id}-menu`).value;
@@ -159,6 +181,13 @@ function validateInfoForm() {
 // 予約送信
 async function submitReservation() {
     try {
+        // 最終的な日付検証
+        if (!isValidReservationDate(selectedDate)) {
+            alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+            goToDatetimePage();
+            return;
+        }
+        
         await loadReservations(selectedDate);
         
         const isStillAvailable = !reservations.some(reservation => 
@@ -210,7 +239,16 @@ async function submitReservation() {
         
     } catch (error) {
         console.error('予約の送信に失敗しました:', error);
-        alert('予約の送信に失敗しました。もう一度お試しください。');
+        
+        // エラーメッセージの詳細化
+        let errorMessage = '予約の送信に失敗しました。';
+        if (error.message.includes('予約は') && error.message.includes('日後')) {
+            errorMessage = error.message;
+        } else {
+            errorMessage += 'もう一度お試しください。';
+        }
+        
+        alert(errorMessage);
     }
 }
 
