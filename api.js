@@ -1,32 +1,29 @@
 // Hair Works天 予約サイト - API通信モジュール
 
-// 予約設定の読み込み
+// 予約設定の読み込み（フロントエンド側で固定値を設定）
 async function loadReservationSettings() {
     try {
-        const response = await fetch(`${API_BASE_URL}/reservation-settings`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        // バックエンドAPIが利用できない場合のフォールバック設定
+        console.log('予約設定をフロントエンド側で設定します');
+        
+        // 固定の予約設定を適用
+        APP_CONFIG.minAdvanceBookingDays = 1;  // 1日後から予約可能
+        APP_CONFIG.maxAdvanceBookingDays = 30; // 30日後まで予約可能
+        
+        console.log('予約設定を設定しました:', {
+            minAdvanceBookingDays: APP_CONFIG.minAdvanceBookingDays,
+            maxAdvanceBookingDays: APP_CONFIG.maxAdvanceBookingDays
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.settings) {
-            // フロントエンドの設定を更新
-            APP_CONFIG.minAdvanceBookingDays = data.settings.minimum_advance_days;
-            APP_CONFIG.maxAdvanceBookingDays = data.settings.maximum_advance_days;
-            console.log('予約設定を読み込みました:', data.settings);
-        }
+        return true;
         
     } catch (error) {
         console.error('予約設定の読み込みに失敗しました:', error);
         // デフォルト値を使用
+        APP_CONFIG.minAdvanceBookingDays = 1;
+        APP_CONFIG.maxAdvanceBookingDays = 30;
         console.log('デフォルトの予約設定を使用します');
+        return false;
     }
 }
 
