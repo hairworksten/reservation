@@ -108,7 +108,7 @@ function displayMenus() {
                 <div class="reservation-notes">
                     <h4>予約に関する注意事項</h4>
                     <ul>
-                        <li>予約受付締切：前日の23:59まで</li>
+                        <li>予約は1日後から可能です</li>
                         <li>キャンセル締切：1時間前まで</li>
                     </ul>
                 </div>
@@ -166,8 +166,14 @@ function updateCalendar() {
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // 1日後の日付を計算（予約可能開始日）
+    const minBookingDate = new Date(today);
+    minBookingDate.setDate(minBookingDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
+    
+    // 最大予約可能日を計算
+    const maxBookingDate = new Date(today);
+    maxBookingDate.setDate(maxBookingDate.getDate() + APP_CONFIG.maxAdvanceBookingDays);
     
     // 空白セル
     for (let i = 0; i < firstDay; i++) {
@@ -190,34 +196,32 @@ function updateCalendar() {
             dayCell.classList.add('japanese-holiday');
         }
         
-        if (cellDate < tomorrow) {
+        // 予約可能日の判定（1日後から）
+        if (cellDate < minBookingDate) {
             dayCell.classList.add('disabled');
-            dayCell.title = '過去の日付は選択できません';
+            dayCell.title = `予約は${APP_CONFIG.minAdvanceBookingDays}日後から可能です`;
+        } else if (cellDate > maxBookingDate) {
+            dayCell.classList.add('disabled');
+            dayCell.title = `予約は${APP_CONFIG.maxAdvanceBookingDays}日後まで可能です`;
         } else if (holidays.includes(dateString)) {
             dayCell.classList.add('disabled');
             dayCell.classList.add('holiday');
             dayCell.title = '休業日です';
         } else {
-            const oneMonthLater = new Date(today);
-            oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-            if (cellDate > oneMonthLater) {
-                dayCell.classList.add('disabled');
-                dayCell.title = '予約は1ヶ月先まで可能です';
-            } else {
-                dayCell.onclick = () => selectDate(dateString);
-                
-                // 平日・土日祝を示すツールチップを追加
-                const isWeekend = isWeekendOrHoliday(dateString);
-                const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
-                const dayType = isWeekend ? '土日祝' : '平日';
-                dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
-            }
+            dayCell.onclick = () => selectDate(dateString);
+            
+            // 平日・土日祝を示すツールチップを追加
+            const isWeekend = isWeekendOrHoliday(dateString);
+            const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
+            const dayType = isWeekend ? '土日祝' : '平日';
+            dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
         }
         
         calendarGrid.appendChild(dayCell);
     }
     
     console.log(`カレンダー更新完了 - 休業日: ${holidays.length}件, 祝日: ${japaneseHolidays.length}件`);
+    console.log(`予約可能期間: ${minBookingDate.toISOString().split('T')[0]} ～ ${maxBookingDate.toISOString().split('T')[0]}`);
 }
 
 // 日付選択
@@ -244,6 +248,11 @@ async function displayTimeSlots(date) {
     try {
         // バックエンドから時間スロット情報を取得
         const slotInfo = await getAvailableTimeSlots(date);
+        
+        if (!slotInfo.isValidDate) {
+            timeSlots.innerHTML = '<div class="error">この日は予約できません。</div>';
+            return;
+        }
         
         if (slotInfo.isHoliday) {
             timeSlots.innerHTML = '<div class="error">この日は休業日です。</div>';
