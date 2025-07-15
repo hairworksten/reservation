@@ -1,5 +1,35 @@
 // Hair Works天 予約サイト - API通信モジュール
 
+// 予約設定の読み込み
+async function loadReservationSettings() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservation-settings`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.settings) {
+            // フロントエンドの設定を更新
+            APP_CONFIG.minAdvanceBookingDays = data.settings.minimum_advance_days;
+            APP_CONFIG.maxAdvanceBookingDays = data.settings.maximum_advance_days;
+            console.log('予約設定を読み込みました:', data.settings);
+        }
+        
+    } catch (error) {
+        console.error('予約設定の読み込みに失敗しました:', error);
+        // デフォルト値を使用
+        console.log('デフォルトの予約設定を使用します');
+    }
+}
+
 // メニューデータの読み込み
 async function loadMenus() {
     const menuGrid = document.getElementById('menu-grid');
@@ -91,6 +121,7 @@ async function getAvailableTimeSlots(date) {
         return {
             success: false,
             isWeekend: isWeekendOrHoliday(date),
+            isValidDate: isValidReservationDate(date),
             timeslots: getTimeSlotsForDate(date)
         };
     }
