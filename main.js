@@ -1,5 +1,8 @@
 // Hair Works天 予約サイト - メイン処理
 
+// 予約送信の状態管理
+let isSubmittingReservation = false;
+
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOMContentLoaded 開始 ===');
@@ -34,6 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function goToTopPage() {
     showPage('top-page');
     resetFormData();
+    // 予約送信状態をリセット
+    resetSubmissionState();
 }
 
 function goToMenuPage() {
@@ -91,6 +96,8 @@ function goToConfirmPage() {
     }
     showPage('confirm-page');
     displayConfirmationDetails();
+    // 確認ページに移動した際に予約送信状態をリセット
+    resetSubmissionState();
 }
 
 function goToCompletionPage() {
@@ -178,9 +185,44 @@ function validateInfoForm() {
     return true;
 }
 
+// 予約送信状態をリセット
+function resetSubmissionState() {
+    isSubmittingReservation = false;
+    const confirmButton = document.querySelector('#confirm-page .confirm-button');
+    if (confirmButton) {
+        confirmButton.disabled = false;
+        confirmButton.textContent = '予約する';
+        confirmButton.style.opacity = '1';
+        confirmButton.style.cursor = 'pointer';
+    }
+}
+
+// 予約送信中の状態に変更
+function setSubmittingState() {
+    isSubmittingReservation = true;
+    const confirmButton = document.querySelector('#confirm-page .confirm-button');
+    if (confirmButton) {
+        confirmButton.disabled = true;
+        confirmButton.textContent = '予約中...';
+        confirmButton.style.opacity = '0.6';
+        confirmButton.style.cursor = 'not-allowed';
+    }
+}
+
 // 予約送信
 async function submitReservation() {
+    // 既に送信処理中の場合は何もしない
+    if (isSubmittingReservation) {
+        console.log('予約送信は既に処理中です。重複送信を防止しました。');
+        return;
+    }
+    
     try {
+        // 送信処理中の状態に変更
+        setSubmittingState();
+        
+        console.log('予約送信処理を開始します...');
+        
         // 最終的な日付検証
         if (!isValidReservationDate(selectedDate)) {
             alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
@@ -234,11 +276,15 @@ async function submitReservation() {
         
         await saveMultipleReservations([mainReservation, ...companionReservations]);
         
+        console.log('予約送信処理が正常に完了しました');
         displayCompletionDetails(mainReservation, companionReservations);
         goToCompletionPage();
         
     } catch (error) {
         console.error('予約の送信に失敗しました:', error);
+        
+        // エラーが発生した場合は送信状態をリセット
+        resetSubmissionState();
         
         // エラーメッセージの詳細化
         let errorMessage = '予約の送信に失敗しました。';
@@ -275,8 +321,41 @@ function resetFormData() {
 // エラーハンドリング
 window.addEventListener('error', function(event) {
     console.error('JavaScript エラーが発生しました:', event.error);
+    // エラーが発生した場合は予約送信状態をリセット
+    if (isSubmittingReservation) {
+        resetSubmissionState();
+    }
 });
 
 window.addEventListener('unhandledrejection', function(event) {
     console.error('未処理のPromise拒否:', event.reason);
+    // Promise拒否が発生した場合は予約送信状態をリセット
+    if (isSubmittingReservation) {
+        resetSubmissionState();
+    }
+});
+
+// ページ離脱時の警告（予約送信中の場合）
+window.addEventListener('beforeunload', function(event) {
+    if (isSubmittingReservation) {
+        const message = '予約処理中です。ページを離れると予約が正常に完了しない可能性があります。';
+        event.returnValue = message;
+        return message;
+    }
+});
+
+// ブラウザの戻る/進むボタンでの移動時の処理
+window.addEventListener('popstate', function(event) {
+    // 予約送信中にブラウザの戻るボタンが押された場合の処理
+    if (isSubmittingReservation) {
+        const shouldContinue = confirm('予約処理中です。本当にページを離れますか？');
+        if (!shouldContinue) {
+            // 履歴を元に戻す
+            history.pushState(null, null, location.href);
+            return false;
+        } else {
+            // ユーザーが離脱を選択した場合は状態をリセット
+            resetSubmissionState();
+        }
+    }
 });
