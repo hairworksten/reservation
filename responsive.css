@@ -72,6 +72,12 @@
         font-size: 16px;
     }
     
+    /* スマホでのボタン順序変更（日時選択画面のみ） */
+    #datetime-page .button-group {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+    
     .button-group {
         flex-direction: column;
         gap: 12px;
@@ -223,6 +229,12 @@
         padding: 6px;
     }
     
+    /* スマホでのボタン順序変更を強化 */
+    #datetime-page .button-group {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+    
     /* さらに小さいロゴサイズ調整 */
     .shop-logo {
         height: 80px;
@@ -350,6 +362,12 @@
     
     .button-arrow {
         font-size: 14px;
+    }
+    
+    /* 極小画面でもボタン順序変更 */
+    #datetime-page .button-group {
+        flex-direction: column-reverse;
+        gap: 8px;
     }
     
     .calendar-day {
