@@ -389,12 +389,12 @@ function addCompanion() {
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">姓 *</label>
-            <input type="text" class="form-input" id="${companionId}-last-name" placeholder="例：田中" required>
+            <label class="form-label">お名前 *</label>
+            <input type="text" class="form-input" id="${companionId}-last-name" placeholder="例：田中花子" required>
         </div>
         <div class="form-group">
-            <label class="form-label">名 *</label>
-            <input type="text" class="form-input" id="${companionId}-first-name" placeholder="例：花子" required>
+            <label class="form-label">電話番号 *</label>
+            <input type="tel" class="form-input" id="${companionId}-first-name" placeholder="例：080-9876-5432" required>
         </div>
     `;
     
@@ -420,7 +420,7 @@ function displayConfirmationDetails() {
     const confirmationDetails = document.getElementById('confirmation-details');
     
     const lastName = document.getElementById('last-name').value.trim();
-    const firstName = document.getElementById('first-name').value.trim();
+    const phoneNumber = document.getElementById('first-name').value.trim();
     const email = document.getElementById('email').value.trim();
     
     let totalPrice = selectedMenu.fare;
@@ -443,7 +443,11 @@ function displayConfirmationDetails() {
         </div>
         <div class="confirmation-item">
             <span class="confirmation-label">代表者お名前</span>
-            <span class="confirmation-value">${lastName} ${firstName}</span>
+            <span class="confirmation-value">${lastName}</span>
+        </div>
+        <div class="confirmation-item">
+            <span class="confirmation-label">電話番号</span>
+            <span class="confirmation-value">${phoneNumber}</span>
         </div>
         <div class="confirmation-item">
             <span class="confirmation-label">メールアドレス</span>
@@ -459,7 +463,11 @@ function displayConfirmationDetails() {
             </div>
             <div class="confirmation-item">
                 <span class="confirmation-label">同行者${index + 1}お名前</span>
-                <span class="confirmation-value">${companion.lastName} ${companion.firstName}</span>
+                <span class="confirmation-value">${companion.lastName}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">同行者${index + 1}電話番号</span>
+                <span class="confirmation-value">${companion.firstName}</span>
             </div>
         `;
     });
@@ -507,7 +515,11 @@ function displayCompletionDetails(mainReservation, companionReservations) {
             </div>
             <div class="confirmation-item">
                 <span class="confirmation-label">お名前</span>
-                <span class="confirmation-value">${mainReservation["Name-f"]} ${mainReservation["Name-s"]}</span>
+                <span class="confirmation-value">${mainReservation["Name-f"]}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">電話番号</span>
+                <span class="confirmation-value">${mainReservation["Name-s"]}</span>
             </div>
             <div class="confirmation-item">
                 <span class="confirmation-label">メールアドレス</span>
@@ -521,8 +533,16 @@ function displayCompletionDetails(mainReservation, companionReservations) {
         companionReservations.forEach((companion, index) => {
             html += `
                 <div class="confirmation-item">
-                    <span class="confirmation-label">同行者${index + 1}</span>
-                    <span class="confirmation-value">${companion["Name-f"]} ${companion["Name-s"]} (${companion.Menu}) - 予約番号: ${companion.reservationNumber}</span>
+                    <span class="confirmation-label">同行者${index + 1}お名前</span>
+                    <span class="confirmation-value">${companion["Name-f"]}</span>
+                </div>
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}電話番号</span>
+                    <span class="confirmation-value">${companion["Name-s"]}</span>
+                </div>
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}メニュー</span>
+                    <span class="confirmation-value">${companion.Menu} - 予約番号: ${companion.reservationNumber}</span>
                 </div>
             `;
         });
