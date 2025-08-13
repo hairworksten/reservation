@@ -142,14 +142,32 @@ async function changeMonth(direction) {
     }
 }
 
+// 電話番号のバリデーション
+function validatePhoneNumber(phoneNumber) {
+    // 日本の電話番号形式をチェック（ハイフンあり・なし両方対応）
+    const phoneRegex = /^(0\d{1,4}-?\d{1,4}-?\d{4}|0\d{9,11})$/;
+    
+    // ハイフンを除去してチェック
+    const cleanPhone = phoneNumber.replace(/-/g, '');
+    const cleanPhoneRegex = /^0\d{9,11}$/;
+    
+    return phoneRegex.test(phoneNumber) || cleanPhoneRegex.test(cleanPhone);
+}
+
 // 入力フォームの検証
 function validateInfoForm() {
     const lastName = document.getElementById('last-name').value.trim();
-    const firstName = document.getElementById('first-name').value.trim();
+    const phoneNumber = document.getElementById('first-name').value.trim();
     const email = document.getElementById('email').value.trim();
     
-    if (!lastName || !firstName || !email) {
+    if (!lastName || !phoneNumber || !email) {
         alert('必須項目を入力してください。');
+        return false;
+    }
+    
+    // 電話番号の形式チェック
+    if (!validatePhoneNumber(phoneNumber)) {
+        alert('正しい電話番号を入力してください。（例：090-1234-5678 または 09012345678）');
         return false;
     }
     
@@ -169,17 +187,23 @@ function validateInfoForm() {
     for (let i = 0; i < companions.length; i++) {
         const companion = companions[i];
         const menu = document.getElementById(`${companion.id}-menu`).value;
-        const lastName = document.getElementById(`${companion.id}-last-name`).value.trim();
-        const firstName = document.getElementById(`${companion.id}-first-name`).value.trim();
+        const companionName = document.getElementById(`${companion.id}-last-name`).value.trim();
+        const companionPhone = document.getElementById(`${companion.id}-first-name`).value.trim();
         
-        if (!menu || !lastName || !firstName) {
+        if (!menu || !companionName || !companionPhone) {
             alert(`同行者の情報を入力してください。`);
             return false;
         }
         
+        // 同行者の電話番号チェック
+        if (!validatePhoneNumber(companionPhone)) {
+            alert('同行者の正しい電話番号を入力してください。（例：090-1234-5678 または 09012345678）');
+            return false;
+        }
+        
         companion.menu = menu;
-        companion.lastName = lastName;
-        companion.firstName = firstName;
+        companion.lastName = companionName;
+        companion.firstName = companionPhone;
     }
     
     return true;
@@ -250,7 +274,7 @@ async function submitReservation() {
             reservationNumber: mainReservationNumber,
             Menu: selectedMenu.name,
             "Name-f": document.getElementById('last-name').value.trim(),
-            "Name-s": document.getElementById('first-name').value.trim(),
+            "Name-s": document.getElementById('first-name').value.trim(), // 電話番号がここに入る
             Time: selectedTime,
             WorkTime: selectedMenu.worktime,
             date: selectedDate,
@@ -264,8 +288,8 @@ async function submitReservation() {
             companionReservations.push({
                 reservationNumber: companionReservationNumber,
                 Menu: companion.menu,
-                "Name-f": companion.lastName,
-                "Name-s": companion.firstName,
+                "Name-f": companion.lastName, // 同行者の名前
+                "Name-s": companion.firstName, // 同行者の電話番号
                 Time: selectedTime,
                 WorkTime: menus[companion.menu].worktime,
                 date: selectedDate,
