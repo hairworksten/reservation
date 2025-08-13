@@ -30,8 +30,44 @@ document.addEventListener('DOMContentLoaded', function() {
     initLogoDisplay();
     console.log('initLogoDisplay() を呼び出しました');
     
+    // 同意チェックボックスのイベントリスナーを設定
+    initAgreementCheckbox();
+    console.log('initAgreementCheckbox() を呼び出しました');
+    
     console.log('=== DOMContentLoaded 完了 ===');
 });
+
+// 同意チェックボックスの初期化
+function initAgreementCheckbox() {
+    const agreementCheckbox = document.getElementById('agreement-checkbox');
+    const submitButton = document.getElementById('submit-button');
+    
+    if (agreementCheckbox && submitButton) {
+        agreementCheckbox.addEventListener('change', function() {
+            submitButton.disabled = !this.checked;
+            if (this.checked) {
+                submitButton.style.opacity = '1';
+                submitButton.style.cursor = 'pointer';
+            } else {
+                submitButton.style.opacity = '0.5';
+                submitButton.style.cursor = 'not-allowed';
+            }
+        });
+    }
+}
+
+// 同意チェックボックスをリセット
+function resetAgreementCheckbox() {
+    const agreementCheckbox = document.getElementById('agreement-checkbox');
+    const submitButton = document.getElementById('submit-button');
+    
+    if (agreementCheckbox && submitButton) {
+        agreementCheckbox.checked = false;
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+        submitButton.style.cursor = 'not-allowed';
+    }
+}
 
 // ページ遷移関数群
 function goToTopPage() {
@@ -98,6 +134,8 @@ function goToConfirmPage() {
     displayConfirmationDetails();
     // 確認ページに移動した際に予約送信状態をリセット
     resetSubmissionState();
+    // チェックボックスの状態をリセット
+    resetAgreementCheckbox();
 }
 
 function goToCompletionPage() {
@@ -214,10 +252,14 @@ function resetSubmissionState() {
     isSubmittingReservation = false;
     const confirmButton = document.querySelector('#confirm-page .confirm-button');
     if (confirmButton) {
-        confirmButton.disabled = false;
+        // 同意チェックボックスの状態をチェック
+        const agreementCheckbox = document.getElementById('agreement-checkbox');
+        const isAgreed = agreementCheckbox ? agreementCheckbox.checked : false;
+        
+        confirmButton.disabled = !isAgreed;
         confirmButton.textContent = '予約する';
-        confirmButton.style.opacity = '1';
-        confirmButton.style.cursor = 'pointer';
+        confirmButton.style.opacity = isAgreed ? '1' : '0.5';
+        confirmButton.style.cursor = isAgreed ? 'pointer' : 'not-allowed';
     }
 }
 
