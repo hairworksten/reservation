@@ -449,6 +449,107 @@
     text-align: right;
 }
 
+/* 重要なお願いセクション */
+.important-agreement {
+    background: #2a1f1f;
+    border: 2px solid #ff8c42;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.important-agreement h4 {
+    color: #ff8c42;
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.agreement-text {
+    color: #ffffff;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-size: 14px;
+    padding: 15px;
+    background: rgba(255, 140, 66, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #ff8c42;
+}
+
+.agreement-checkbox {
+    text-align: center;
+}
+
+.checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #ffffff;
+    user-select: none;
+    padding: 10px;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: #243552;
+    border: 2px solid #ff8c42;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #2a3f5f;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #ff8c42;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 10px;
+    border: solid #0a1628;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* 予約ボタンの無効状態 */
+.confirm-button:disabled {
+    background: #666;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.confirm-button:disabled:hover {
+    background: #666;
+    transform: none;
+}
+
 /* 完了ページ */
 .completion-container {
     text-align: center;
@@ -482,6 +583,37 @@
     color: #ffffff;
     line-height: 1.8;
     margin-bottom: 25px;
+}
+
+/* メール注意書きセクション */
+.email-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.email-notice-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.email-notice-text {
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.email-notice-text strong {
+    color: #ffc107;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 8px;
 }
 
 .check-reservation-button {
