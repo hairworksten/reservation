@@ -585,7 +585,7 @@
     margin-bottom: 25px;
 }
 
-/* メール注意書きセクション */
+/* メール注意書きセクション - 修正版 */
 .email-notice {
     display: flex;
     align-items: flex-start;
@@ -607,13 +607,15 @@
 .email-notice-text {
     color: #ffffff;
     line-height: 1.6;
+    flex: 1;
 }
 
 .email-notice-text strong {
     color: #ffc107;
     font-size: 16px;
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px; /* 修正: 8pxから5pxに変更 */
+    font-weight: bold;
 }
 
 .check-reservation-button {
