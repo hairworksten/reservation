@@ -69,6 +69,20 @@ function resetAgreementCheckbox() {
     }
 }
 
+// 同行者のリセット関数（新規追加）
+function resetCompanions() {
+    // 同行者配列をクリア
+    companions = [];
+    
+    // DOM要素もクリア
+    const companionsContainer = document.getElementById('companions-container');
+    if (companionsContainer) {
+        companionsContainer.innerHTML = '';
+    }
+    
+    console.log('同行者情報をリセットしました');
+}
+
 // ページ遷移関数群
 function goToTopPage() {
     showPage('top-page');
@@ -82,6 +96,8 @@ function goToMenuPage() {
     if (Object.keys(menus).length === 0) {
         loadMenus();
     }
+    // メニューページに戻る際に同行者をリセット
+    resetCompanions();
 }
 
 async function goToDatetimePage() {
@@ -108,6 +124,9 @@ async function goToDatetimePage() {
         console.error('日時選択ページの初期化に失敗しました:', error);
         calendarGrid.innerHTML = '<div class="error">カレンダーの読み込みに失敗しました。再度お試しください。</div>';
     }
+    
+    // 日時選択ページに戻る際に同行者をリセット
+    resetCompanions();
 }
 
 function goToInfoPage() {
@@ -124,6 +143,8 @@ function goToInfoPage() {
     }
     
     showPage('info-page');
+    // 情報入力ページに来る際に同行者をリセット（戻るボタンで戻ってきた場合に対応）
+    resetCompanions();
 }
 
 function goToConfirmPage() {
