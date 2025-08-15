@@ -34,6 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initAgreementCheckbox();
     console.log('initAgreementCheckbox() を呼び出しました');
     
+    // ローカルストレージ対応チェック
+    if (isLocalStorageSupported()) {
+        console.log('ローカルストレージがサポートされています');
+    } else {
+        console.warn('ローカルストレージがサポートされていません');
+    }
+    
     console.log('=== DOMContentLoaded 完了 ===');
 });
 
@@ -145,6 +152,13 @@ function goToInfoPage() {
     showPage('info-page');
     // 情報入力ページに来る際に同行者をリセット（戻るボタンで戻ってきた場合に対応）
     resetCompanions();
+    
+    // 顧客情報の自動入力（新規追加）
+    if (isLocalStorageSupported()) {
+        setTimeout(() => {
+            autoFillCustomerInfo();
+        }, 100);
+    }
 }
 
 function goToConfirmPage() {
@@ -157,6 +171,11 @@ function goToConfirmPage() {
     resetSubmissionState();
     // チェックボックスの状態をリセット
     resetAgreementCheckbox();
+    
+    // 情報保存オプションの表示（新規追加）
+    if (isLocalStorageSupported()) {
+        showSaveInfoOption();
+    }
 }
 
 function goToCompletionPage() {
@@ -362,6 +381,11 @@ async function submitReservation() {
         }
         
         await saveMultipleReservations([mainReservation, ...companionReservations]);
+        
+        // 顧客情報の保存処理（新規追加）
+        if (isLocalStorageSupported()) {
+            handleCustomerInfoSave();
+        }
         
         console.log('予約送信処理が正常に完了しました');
         displayCompletionDetails(mainReservation, companionReservations);
