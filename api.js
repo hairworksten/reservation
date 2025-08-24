@@ -124,8 +124,8 @@ async function getAvailableTimeSlots(date) {
                     const slotTime = hour * 60 + minute;
                     const currentTime = currentHour * 60 + currentMinute;
                     
-                    // 15分のバッファを設ける
-                    return slotTime > (currentTime + 15);
+                    // 30分のバッファを設ける
+                    return slotTime > (currentTime + 30);
                 });
                 
                 data.timeslots = filteredSlots;
@@ -172,7 +172,7 @@ async function loadNotices() {
                 { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
                 { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
                 { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' },
-                { icon: '🕒', text: '当日のご予約も承っております。現在時刻の15分後以降の時間をお選びください。' }
+                { icon: '🕒', text: '当日のご予約も承っております。現在時刻の30分後以降の時間をお選びください。' }
             ];
             displayNotices();
         }
@@ -184,7 +184,7 @@ async function loadNotices() {
             { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
             { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
             { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' },
-            { icon: '🕒', text: '当日のご予約も承っております。現在時刻の15分後以降の時間をお選びください。' }
+            { icon: '🕒', text: '当日のご予約も承っております。現在時刻の30分後以降の時間をお選びください。' }
         ];
         displayNotices();
     }
