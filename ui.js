@@ -108,7 +108,7 @@ function displayMenus() {
                 <div class="reservation-notes">
                     <h4>予約に関する注意事項</h4>
                     <ul>
-                        <li>予約は1日後から可能です</li>
+                        <li>当日のご予約も承っております</li>
                         <li>キャンセル締切：1時間前まで</li>
                     </ul>
                 </div>
@@ -143,7 +143,7 @@ function initCalendar() {
     updateCalendar();
 }
 
-// カレンダーの更新（完全修正版）
+// カレンダーの更新（当日対応版）
 function updateCalendar() {
     const monthYear = document.getElementById('month-year');
     const calendarGrid = document.getElementById('calendar-grid');
@@ -171,7 +171,7 @@ function updateCalendar() {
     const japanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
     const today = new Date(japanTime.getFullYear(), japanTime.getMonth(), japanTime.getDate());
     
-    // 1日後の日付を計算（予約可能開始日）
+    // 当日から予約可能（0日後から）
     const minBookingDate = new Date(today);
     minBookingDate.setDate(minBookingDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
     
@@ -205,11 +205,11 @@ function updateCalendar() {
             dayCell.classList.add('japanese-holiday');
         }
         
-        // 予約可能日の判定（1日後から）
+        // 予約可能日の判定（当日から）
         if (cellDate < minBookingDate) {
             dayCell.classList.add('disabled');
-            dayCell.title = `予約は${APP_CONFIG.minAdvanceBookingDays}日後から可能です`;
-            console.log(`❌ ${dateString} は予約不可（最小予約日より前）`);
+            dayCell.title = `予約は当日から可能です`;
+            console.log(`❌ ${dateString} は予約不可（過去の日付）`);
         } else if (cellDate > maxBookingDate) {
             dayCell.classList.add('disabled');
             dayCell.title = `予約は${APP_CONFIG.maxAdvanceBookingDays}日後まで可能です`;
@@ -226,7 +226,15 @@ function updateCalendar() {
             const isWeekend = isWeekendOrHoliday(dateString);
             const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
             const dayType = isWeekend ? '土日祝' : '平日';
-            dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
+            
+            // 当日の場合は特別なメッセージ
+            const todayString = getTodayDateString();
+            if (dateString === todayString) {
+                dayCell.title = `本日 ${dateString} を選択 (${dayType}: 現在時刻+30分以降)`;
+            } else {
+                dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
+            }
+            
             console.log(`✅ ${dateString} は予約可能`);
         }
         
@@ -250,7 +258,7 @@ function selectDate(dateString) {
     displayTimeSlots(dateString);
 }
 
-// 時間スロットの表示
+// 時間スロットの表示（当日対応版）
 async function displayTimeSlots(date) {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const timeSlots = document.getElementById('time-slots');
@@ -259,7 +267,7 @@ async function displayTimeSlots(date) {
     timeSlots.innerHTML = '<div class="loading">時間を確認しています...</div>';
     
     try {
-        // ui.js内で直接日付判定を行う（config.jsの関数は使わない）
+        // ui.js内で直接日付判定を行う
         const [year, month, day] = date.split('-').map(Number);
         const targetDate = new Date(year, month - 1, day);
         
@@ -268,7 +276,7 @@ async function displayTimeSlots(date) {
         const japanTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
         const today = new Date(japanTime.getFullYear(), japanTime.getMonth(), japanTime.getDate());
         
-        // 最小予約日数チェック（1日後から予約可能）
+        // 当日から予約可能（0日後から）
         const minimumDate = new Date(today);
         minimumDate.setDate(minimumDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
         
@@ -305,7 +313,7 @@ async function displayTimeSlots(date) {
         
         timeSlots.innerHTML = '';
         
-        // バックエンドから取得した時間スロットを使用
+        // バックエンドから取得した時間スロットを使用（当日対応）
         const availableTimeSlots = slotInfo.timeslots || getTimeSlotsForDate(date);
         const isWeekend = slotInfo.isWeekend !== undefined ? slotInfo.isWeekend : isWeekendOrHoliday(date);
         
@@ -314,7 +322,23 @@ async function displayTimeSlots(date) {
         if (timeSelectionTitle) {
             const dayType = isWeekend ? '土日祝' : '平日';
             const businessHours = slotInfo.businessHours || APP_CONFIG.businessHours[isWeekend ? 'weekend' : 'weekday'];
-            timeSelectionTitle.textContent = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
+            
+            const todayString = getTodayDateString();
+            if (date === todayString) {
+                timeSelectionTitle.textContent = `時間を選択してください（本日 - ${dayType}: 現在時刻+30分以降）`;
+            } else {
+                timeSelectionTitle.textContent = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
+            }
+        }
+        
+        if (availableTimeSlots.length === 0) {
+            const todayString = getTodayDateString();
+            if (date === todayString) {
+                timeSlots.innerHTML = '<div class="error">本日は予約可能な時間がありません。明日以降をお選びください。</div>';
+            } else {
+                timeSlots.innerHTML = '<div class="error">この日は予約可能な時間がありません。</div>';
+            }
+            return;
         }
         
         availableTimeSlots.forEach(time => {
@@ -341,7 +365,9 @@ async function displayTimeSlots(date) {
             timeSlots.appendChild(timeSlot);
         });
         
-        console.log(`${date}の時間スロット表示完了 (${isWeekend ? '土日祝' : '平日'}: ${availableTimeSlots.length}件)`);
+        const todayString = getTodayDateString();
+        const dayTypeText = date === todayString ? '本日' : (isWeekend ? '土日祝' : '平日');
+        console.log(`${date}の時間スロット表示完了 (${dayTypeText}: ${availableTimeSlots.length}件)`);
         
     } catch (error) {
         console.error('予約状況の確認に失敗しました:', error);
@@ -431,11 +457,13 @@ function displayConfirmationDetails() {
     // 選択された日時の詳細情報を追加
     const isWeekend = isWeekendOrHoliday(selectedDate);
     const dayType = isWeekend ? '土日祝' : '平日';
+    const todayString = getTodayDateString();
+    const dayTypeText = selectedDate === todayString ? '本日' : dayType;
     
     let html = `
         <div class="confirmation-item">
             <span class="confirmation-label">予約日時</span>
-            <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayType})</span>
+            <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayTypeText})</span>
         </div>
         <div class="confirmation-item">
             <span class="confirmation-label">代表者メニュー</span>
@@ -489,6 +517,8 @@ function displayCompletionDetails(mainReservation, companionReservations) {
     // 日時の詳細情報を追加
     const isWeekend = isWeekendOrHoliday(selectedDate);
     const dayType = isWeekend ? '土日祝' : '平日';
+    const todayString = getTodayDateString();
+    const dayTypeText = selectedDate === todayString ? '本日' : dayType;
     
     let html = `
         <div class="confirmation-section">
@@ -507,7 +537,7 @@ function displayCompletionDetails(mainReservation, companionReservations) {
             <div class="confirmation-title">予約詳細</div>
             <div class="confirmation-item">
                 <span class="confirmation-label">予約日時</span>
-                <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayType})</span>
+                <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayTypeText})</span>
             </div>
             <div class="confirmation-item">
                 <span class="confirmation-label">メニュー</span>
