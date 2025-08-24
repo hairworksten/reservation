@@ -129,6 +129,7 @@ async function getAvailableTimeSlots(date) {
                 });
                 
                 data.timeslots = filteredSlots;
+                data.timeslots = filteredSlots;
                 console.log(`当日予約のため時間スロットをフィルタリング: ${filteredSlots.length}件`);
             }
         }
