@@ -230,7 +230,7 @@ function updateCalendar() {
             // 当日の場合は特別なメッセージ
             const todayString = getTodayDateString();
             if (dateString === todayString) {
-                dayCell.title = `本日 ${dateString} を選択 (${dayType}: 現在時刻+30分以降)`;
+                dayCell.title = `本日 ${dateString} を選択 (${dayType})`;
             } else {
                 dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
             }
@@ -325,7 +325,7 @@ async function displayTimeSlots(date) {
             
             const todayString = getTodayDateString();
             if (date === todayString) {
-                timeSelectionTitle.textContent = `時間を選択してください（本日 - ${dayType}: 現在時刻+30分以降）`;
+                timeSelectionTitle.textContent = `時間を選択してください（本日）`;
             } else {
                 timeSelectionTitle.textContent = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
             }
