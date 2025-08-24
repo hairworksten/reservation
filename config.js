@@ -63,8 +63,8 @@ function getTimeSlotsForDate(dateString) {
             const slotTime = hour * 60 + minute;
             const currentTime = currentHour * 60 + currentMinute;
             
-            // 30分のバッファを設ける（準備時間を考慮）
-            return slotTime > (currentTime + 30);
+            // 15分のバッファを設ける（準備時間を考慮）
+            return slotTime > (currentTime + 15);
         });
     }
     
