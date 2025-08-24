@@ -95,9 +95,11 @@ async function loadJapaneseHolidays() {
     }
 }
 
-// 利用可能な時間スロットを取得（当日対応版）
+// 利用可能な時間スロットを取得（当日対応版・修正版）
 async function getAvailableTimeSlots(date) {
     try {
+        console.log(`時間スロット取得開始: ${date}`);
+        
         const response = await fetch(`${API_BASE_URL}/timeslots/${date}`, {
             method: 'GET',
             headers: {
@@ -105,11 +107,27 @@ async function getAvailableTimeSlots(date) {
             }
         });
         
+        console.log(`API レスポンス: ${response.status}`);
+        
         if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('API エラーレスポンス:', errorData);
+            
+            // 400エラーの場合はエラー詳細を含めて返す
+            if (response.status === 400) {
+                return {
+                    success: false,
+                    isValidDate: false,
+                    message: errorData?.message || '日付が無効です',
+                    timeslots: []
+                };
+            }
+            
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('時間スロットAPI レスポンス:', data);
         
         // 当日の場合は現在時刻以降のスロットをフィルタリング
         if (data.success && data.timeslots) {
@@ -129,7 +147,7 @@ async function getAvailableTimeSlots(date) {
                 });
                 
                 data.timeslots = filteredSlots;
-                console.log(`当日予約のため時間スロットをフィルタリング: ${filteredSlots.length}件`);
+                console.log(`当日予約のため時間スロットをフロントエンドでもフィルタリング: ${filteredSlots.length}件`);
             }
         }
         
@@ -142,7 +160,8 @@ async function getAvailableTimeSlots(date) {
             success: false,
             isWeekend: isWeekendOrHoliday(date),
             isValidDate: isValidReservationDate(date),
-            timeslots: getTimeSlotsForDate(date)
+            timeslots: getTimeSlotsForDate(date),
+            message: 'サーバーエラーのためフォールバック処理を使用'
         };
     }
 }
@@ -266,9 +285,11 @@ async function retryLoadHolidays() {
     }
 }
 
-// 予約データの読み込み
+// 予約データの読み込み（修正版）
 async function loadReservations(date) {
     try {
+        console.log(`予約データ取得開始: ${date}`);
+        
         const response = await fetch(`${API_BASE_URL}/reservations/${date}`, {
             method: 'GET',
             headers: {
@@ -276,7 +297,19 @@ async function loadReservations(date) {
             }
         });
         
+        console.log(`予約API レスポンス: ${response.status}`);
+        
         if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error('予約API エラーレスポンス:', errorData);
+            
+            // 400エラーの場合は詳細なエラー処理
+            if (response.status === 400) {
+                console.warn(`予約データ取得失敗（400）: ${errorData?.message || '日付が無効'}`);
+                reservations = [];
+                return;
+            }
+            
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -284,8 +317,10 @@ async function loadReservations(date) {
         
         if (data.success && Array.isArray(data.reservations)) {
             reservations = data.reservations;
+            console.log(`予約データ取得成功: ${reservations.length}件`);
         } else {
             reservations = [];
+            console.warn('予約データの形式が正しくありません');
         }
         
     } catch (error) {
