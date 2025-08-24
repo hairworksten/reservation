@@ -144,7 +144,7 @@ function goToInfoPage() {
     
     // 選択された日付が予約可能かチェック
     if (!isValidReservationDate(selectedDate)) {
-        alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
         goToDatetimePage();
         return;
     }
@@ -257,7 +257,7 @@ function validateInfoForm() {
     
     // 選択された日時の再検証
     if (!isValidReservationDate(selectedDate)) {
-        alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
         goToDatetimePage();
         return false;
     }
@@ -331,7 +331,7 @@ async function submitReservation() {
         
         // 最終的な日付検証
         if (!isValidReservationDate(selectedDate)) {
-            alert(`選択された日付は予約できません。${APP_CONFIG.minAdvanceBookingDays}日後から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+            alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
             goToDatetimePage();
             return;
         }
