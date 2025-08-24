@@ -6,8 +6,8 @@ async function loadReservationSettings() {
         // バックエンドAPIが利用できない場合のフォールバック設定
         console.log('予約設定をフロントエンド側で設定します');
         
-        // 固定の予約設定を適用
-        APP_CONFIG.minAdvanceBookingDays = 1;  // 1日後から予約可能
+        // 固定の予約設定を適用（当日から予約可能に変更）
+        APP_CONFIG.minAdvanceBookingDays = 0;  // 当日から予約可能
         APP_CONFIG.maxAdvanceBookingDays = 30; // 30日後まで予約可能
         
         console.log('予約設定を設定しました:', {
@@ -20,7 +20,7 @@ async function loadReservationSettings() {
     } catch (error) {
         console.error('予約設定の読み込みに失敗しました:', error);
         // デフォルト値を使用
-        APP_CONFIG.minAdvanceBookingDays = 1;
+        APP_CONFIG.minAdvanceBookingDays = 0;
         APP_CONFIG.maxAdvanceBookingDays = 30;
         console.log('デフォルトの予約設定を使用します');
         return false;
@@ -95,7 +95,7 @@ async function loadJapaneseHolidays() {
     }
 }
 
-// 利用可能な時間スロットを取得
+// 利用可能な時間スロットを取得（当日対応版）
 async function getAvailableTimeSlots(date) {
     try {
         const response = await fetch(`${API_BASE_URL}/timeslots/${date}`, {
@@ -110,6 +110,29 @@ async function getAvailableTimeSlots(date) {
         }
         
         const data = await response.json();
+        
+        // 当日の場合は現在時刻以降のスロットをフィルタリング
+        if (data.success && data.timeslots) {
+            const today = getTodayDateString();
+            if (date === today) {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                
+                const filteredSlots = data.timeslots.filter(timeSlot => {
+                    const [hour, minute] = timeSlot.split(':').map(Number);
+                    const slotTime = hour * 60 + minute;
+                    const currentTime = currentHour * 60 + currentMinute;
+                    
+                    // 30分のバッファを設ける
+                    return slotTime > (currentTime + 30);
+                });
+                
+                data.timeslots = filteredSlots;
+                console.log(`当日予約のため時間スロットをフィルタリング: ${filteredSlots.length}件`);
+            }
+        }
+        
         return data;
         
     } catch (error) {
@@ -148,18 +171,20 @@ async function loadNotices() {
             notices = [
                 { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
                 { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
-                { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
+                { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' },
+                { icon: '🕒', text: '当日のご予約も承っております。現在時刻の30分後以降の時間をお選びください。' }
             ];
             displayNotices();
         }
         
     } catch (error) {
         console.error('loadNotices エラー:', error);
-        // デフォルトのお知らせを設定
+        // デフォルトのお知らせを設定（当日予約に関する内容を追加）
         notices = [
             { icon: '⏰', text: 'ご予約の開始時刻は目安となっており、前のお客様の施術内容によっては、お時間をいただくことがございます。ご理解のほど、よろしくお願いいたします。' },
             { icon: '📞', text: '電話でのご予約は承っておりません。何卒ご了承ください。' },
-            { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' }
+            { icon: '⏱️', text: 'キャンセルの締切は、ご予約時間の1時間前までとさせていただいております。' },
+            { icon: '🕒', text: '当日のご予約も承っております。現在時刻の30分後以降の時間をお選びください。' }
         ];
         displayNotices();
     }
