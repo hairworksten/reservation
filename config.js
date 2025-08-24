@@ -1,7 +1,7 @@
 // Hair Works天 予約サイト - 設定ファイル
 
 // Cloud Run API設定
-const API_BASE_URL = 'https://hair-works-api-36382648212.asia-northeast1.run.app/api';
+const API_BASE_URL = 'https://hair-works-api-v2-knn6yth7rq-an.a.run.app/api';
 
 // アプリケーション設定
 const APP_CONFIG = {
