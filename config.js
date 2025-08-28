@@ -6,7 +6,7 @@ const API_BASE_URL = 'https://hair-works-api-v2-knn6yth7rq-an.a.run.app/api';
 // アプリケーション設定
 const APP_CONFIG = {
     maxCompanions: 1, // 最大同行者数を1名に変更
-    minAdvanceBookingDays: 0, // 最小予約日数（0日後=当日から予約可能）
+    minAdvanceBookingDays: 1, // 最小予約日数（1日後=翌日から予約可能に変更）
     maxAdvanceBookingDays: 30, // 最大予約日数（30日後まで予約可能）
     cancelDeadlineHours: 1,
     reservationCutoffTime: '23:59',
@@ -45,29 +45,13 @@ function isWeekendOrHoliday(dateString) {
     return false;
 }
 
-// 指定日付の時間スロットを取得する関数（当日対応版）
+// 指定日付の時間スロットを取得する関数（翌日以降のみ）
 function getTimeSlotsForDate(dateString) {
     const baseSlots = isWeekendOrHoliday(dateString) 
         ? APP_CONFIG.timeSlots.weekend 
         : APP_CONFIG.timeSlots.weekday;
     
-    // 当日の場合は現在時刻以降のスロットのみを返す
-    const today = getTodayDateString();
-    if (dateString === today) {
-        const now = new Date();
-        const currentHour = now.getHours();
-        const currentMinute = now.getMinutes();
-        
-        return baseSlots.filter(timeSlot => {
-            const [hour, minute] = timeSlot.split(':').map(Number);
-            const slotTime = hour * 60 + minute;
-            const currentTime = currentHour * 60 + currentMinute;
-            
-            // 30分のバッファを設ける（準備時間を考慮）
-            return slotTime > (currentTime + 30);
-        });
-    }
-    
+    // 当日は予約不可なので、常に全ての時間スロットを返す
     return baseSlots;
 }
 
@@ -81,7 +65,7 @@ function getTodayDateString() {
     return `${year}-${month}-${day}`;
 }
 
-// 予約可能日かを判定する関数（当日対応版）
+// 予約可能日かを判定する関数（翌日以降のみ）
 function isValidReservationDate(dateString) {
     // 日本時間での今日の日付を取得
     const now = new Date();
@@ -96,7 +80,7 @@ function isValidReservationDate(dateString) {
     console.log(`今日（日本時間）: ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
     console.log(`対象日: ${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`);
     
-    // 最小予約日数チェック（0日後=当日から予約可能）
+    // 最小予約日数チェック（1日後=翌日から予約可能）
     const minimumDate = new Date(today);
     minimumDate.setDate(minimumDate.getDate() + APP_CONFIG.minAdvanceBookingDays);
     
