@@ -144,7 +144,7 @@ function goToInfoPage() {
     
     // 選択された日付が予約可能かチェック
     if (!isValidReservationDate(selectedDate)) {
-        alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        alert(`選択された日付は予約できません。翌日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
         goToDatetimePage();
         return;
     }
