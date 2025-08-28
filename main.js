@@ -220,16 +220,19 @@ async function changeMonth(direction) {
     }
 }
 
-// 電話番号のバリデーション
+// 電話番号のバリデーション（数字のみ対応）
 function validatePhoneNumber(phoneNumber) {
-    // 日本の電話番号形式をチェック（ハイフンあり・なし両方対応）
-    const phoneRegex = /^(0\d{1,4}-?\d{1,4}-?\d{4}|0\d{9,11})$/;
+    // 数字のみをチェック（10桁または11桁）
+    const phoneRegex = /^0\d{9,10}$/;
     
-    // ハイフンを除去してチェック
-    const cleanPhone = phoneNumber.replace(/-/g, '');
-    const cleanPhoneRegex = /^0\d{9,11}$/;
+    // 数字以外の文字が含まれていないかチェック
+    const numericOnly = /^\d+$/.test(phoneNumber);
     
-    return phoneRegex.test(phoneNumber) || cleanPhoneRegex.test(cleanPhone);
+    if (!numericOnly) {
+        return false;
+    }
+    
+    return phoneRegex.test(phoneNumber);
 }
 
 // 入力フォームの検証
@@ -243,9 +246,9 @@ function validateInfoForm() {
         return false;
     }
     
-    // 電話番号の形式チェック
+    // 電話番号の形式チェック（数字のみ）
     if (!validatePhoneNumber(phoneNumber)) {
-        alert('正しい電話番号を入力してください。（例：090-1234-5678 または 09012345678）');
+        alert('正しい電話番号を入力してください。（例：09012345678 - 数字のみ10〜11桁）');
         return false;
     }
     
@@ -257,7 +260,7 @@ function validateInfoForm() {
     
     // 選択された日時の再検証
     if (!isValidReservationDate(selectedDate)) {
-        alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+        alert(`選択された日付は予約できません。翌日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
         goToDatetimePage();
         return false;
     }
@@ -273,9 +276,9 @@ function validateInfoForm() {
             return false;
         }
         
-        // 同行者の電話番号チェック
+        // 同行者の電話番号チェック（数字のみ）
         if (!validatePhoneNumber(companionPhone)) {
-            alert('同行者の正しい電話番号を入力してください。（例：090-1234-5678 または 09012345678）');
+            alert('同行者の正しい電話番号を入力してください。（例：09012345678 - 数字のみ10〜11桁）');
             return false;
         }
         
@@ -331,7 +334,7 @@ async function submitReservation() {
         
         // 最終的な日付検証
         if (!isValidReservationDate(selectedDate)) {
-            alert(`選択された日付は予約できません。当日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
+            alert(`選択された日付は予約できません。翌日から${APP_CONFIG.maxAdvanceBookingDays}日後まで予約可能です。`);
             goToDatetimePage();
             return;
         }
