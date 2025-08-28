@@ -370,7 +370,7 @@ function selectTime(time) {
     document.getElementById('datetime-next-button').classList.add('show');
 }
 
-// 同行者追加
+// 同行者追加（数字のみ電話番号対応）
 function addCompanion() {
     if (companions.length >= APP_CONFIG.maxCompanions) {
         alert('同行者は最大1名まで追加できます。');
@@ -403,7 +403,7 @@ function addCompanion() {
         </div>
         <div class="form-group">
             <label class="form-label">電話番号 *</label>
-            <input type="tel" class="form-input" id="${companionId}-first-name" placeholder="例：080-9876-5432" required>
+            <input type="number" class="form-input" id="${companionId}-first-name" placeholder="例：08098765432" required pattern="[0-9]*" inputmode="numeric">
         </div>
     `;
     
