@@ -3,6 +3,9 @@
 // 顧客情報のキー名
 const STORAGE_KEY = 'hairworks_customer_info';
 
+// 保存期間の設定（日数）
+const STORAGE_RETENTION_DAYS = 365; // 1年間保存に変更
+
 // 顧客情報の保存
 function saveCustomerInfo() {
     try {
@@ -37,13 +40,13 @@ function loadCustomerInfo() {
         
         const customerInfo = JSON.parse(savedInfo);
         
-        // 保存期間のチェック（30日間）
+        // 保存期間のチェック（設定された日数間）
         const savedDate = new Date(customerInfo.savedAt);
         const now = new Date();
         const daysDiff = (now - savedDate) / (1000 * 60 * 60 * 24);
         
-        if (daysDiff > 30) {
-            console.log('保存期間が過ぎているため、顧客情報を削除します');
+        if (daysDiff > STORAGE_RETENTION_DAYS) {
+            console.log(`保存期間（${STORAGE_RETENTION_DAYS}日間）が過ぎているため、顧客情報を削除します`);
             clearCustomerInfo();
             return null;
         }
@@ -166,7 +169,7 @@ function showSaveInfoOption() {
             <label class="save-info-checkbox">
                 <input type="checkbox" id="save-info-checkbox" checked>
                 <span class="save-checkmark"></span>
-                次回入力を省略するため、お客様情報を保存する（30日間）
+                次回入力を省略するため、お客様情報を保存する（1年間）
             </label>
             <div class="save-info-note">
                 ※ 情報はお使いのブラウザにのみ保存され、外部に送信されることはありません
@@ -200,11 +203,48 @@ function showPrivacyInfo() {
             <ul>
                 <li>お客様の情報は、お使いのブラウザ内にのみ保存されます</li>
                 <li>情報が外部のサーバーに送信されることはありません</li>
-                <li>保存期間は30日間で、その後自動的に削除されます</li>
+                <li>保存期間は1年間で、その後自動的に削除されます</li>
                 <li>いつでも手動で削除することができます</li>
             </ul>
         </div>
     `;
+}
+
+// 保存期間の取得（外部から参照可能）
+function getStorageRetentionDays() {
+    return STORAGE_RETENTION_DAYS;
+}
+
+// 保存された情報の有効期限を取得
+function getStorageExpiryDate() {
+    const savedInfo = localStorage.getItem(STORAGE_KEY);
+    if (!savedInfo) {
+        return null;
+    }
+    
+    try {
+        const customerInfo = JSON.parse(savedInfo);
+        const savedDate = new Date(customerInfo.savedAt);
+        const expiryDate = new Date(savedDate.getTime() + (STORAGE_RETENTION_DAYS * 24 * 60 * 60 * 1000));
+        return expiryDate;
+    } catch (error) {
+        console.error('保存情報の解析に失敗しました:', error);
+        return null;
+    }
+}
+
+// 保存された情報の残り日数を取得
+function getRemainingDays() {
+    const expiryDate = getStorageExpiryDate();
+    if (!expiryDate) {
+        return null;
+    }
+    
+    const now = new Date();
+    const remainingMs = expiryDate.getTime() - now.getTime();
+    const remainingDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+    
+    return Math.max(0, remainingDays);
 }
 
 // ブラウザサポートチェック
