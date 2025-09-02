@@ -577,4 +577,74 @@ function displayCompletionDetails(mainReservation, companionReservations) {
         html += '</div>';
     }
     
+}
+
+// 完了画面の詳細表示
+function displayCompletionDetails(mainReservation, companionReservations) {
+    document.getElementById('completion-reservation-number').textContent = `予約番号: ${mainReservation.reservationNumber}`;
+    
+    // 日時の詳細情報を追加
+    const isWeekend = isWeekendOrHoliday(selectedDate);
+    const dayType = isWeekend ? '土日祝' : '平日';
+    
+    let html = `
+        <div class="confirmation-section">
+            <div class="confirmation-title">店舗情報</div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">店舗名</span>
+                <span class="confirmation-value">${APP_CONFIG.shopInfo.name}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">住所</span>
+                <span class="confirmation-value">${APP_CONFIG.shopInfo.address}</span>
+            </div>
+        </div>
+        
+        <div class="confirmation-section">
+            <div class="confirmation-title">予約詳細</div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">予約日時</span>
+                <span class="confirmation-value">${selectedDate} ${selectedTime} (${dayType})</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">メニュー</span>
+                <span class="confirmation-value">${mainReservation.Menu}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">お名前</span>
+                <span class="confirmation-value">${mainReservation["Name-f"]}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">電話番号</span>
+                <span class="confirmation-value">${mainReservation["Name-s"]}</span>
+            </div>
+            <div class="confirmation-item">
+                <span class="confirmation-label">メールアドレス</span>
+                <span class="confirmation-value">${mainReservation.mail}</span>
+            </div>
+        </div>
+    `;
+    
+    if (companionReservations.length > 0) {
+        html += '<div class="confirmation-section"><div class="confirmation-title">同行者情報</div>';
+        companionReservations.forEach((companion, index) => {
+            html += `
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}お名前</span>
+                    <span class="confirmation-value">${companion["Name-f"]}</span>
+                </div>
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}電話番号</span>
+                    <span class="confirmation-value">${companion["Name-s"]}</span>
+                </div>
+                <div class="confirmation-item">
+                    <span class="confirmation-label">同行者${index + 1}メニュー</span>
+                    <span class="confirmation-value">${companion.Menu} - 予約番号: ${companion.reservationNumber}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
     document.getElementById('completion-details').innerHTML = html;
+}
