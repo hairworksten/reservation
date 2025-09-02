@@ -142,6 +142,7 @@ function initCalendar() {
     currentYear = today.getFullYear();
     updateCalendar();
 }
+
 // カレンダーの更新（スタッフ表示付き・修正版）
 async function updateCalendar() {
     const monthYear = document.getElementById('month-year');
@@ -201,10 +202,9 @@ async function updateCalendar() {
         const cellDate = new Date(currentYear, currentMonth, day);
         const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        // スタッフ情報を取得（日付キーの両方をチェック）
-        const dayKey1 = String(day); // "1", "2", ...
-        const dayKey2 = String(day).padStart(2, '0'); // "01", "02", ...
-        const staffName = monthlyStaffData[dayKey1] || monthlyStaffData[dayKey2] || null;
+        // スタッフ情報を取得（0埋め形式のキーで検索）
+        const dayKey = String(day).padStart(2, '0'); // "01", "02", "15"
+        const staffName = monthlyStaffData[dayKey] || null;
         
         // 日付番号を表示
         const dayNumber = document.createElement('div');
