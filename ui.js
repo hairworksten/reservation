@@ -252,7 +252,7 @@ function selectDate(dateString) {
     displayTimeSlots(dateString);
 }
 
-// 時間スロットの表示（翌日以降版）
+// 時間スロットの表示（スタッフ情報付き・修正版）
 async function displayTimeSlots(date) {
     const timeSlotsContainer = document.getElementById('time-slots-container');
     const timeSlots = document.getElementById('time-slots');
@@ -299,7 +299,7 @@ async function displayTimeSlots(date) {
         
         console.log('✅ 予約可能な日付です');
         
-        // バックエンドから時間スロット情報を取得（フォールバック付き）
+        // バックエンドから時間スロット情報とスタッフ情報を取得（フォールバック付き）
         const slotInfo = await getAvailableTimeSlots(date);
         
         // 予約状況を取得
@@ -310,14 +310,29 @@ async function displayTimeSlots(date) {
         // バックエンドから取得した時間スロットを使用
         const availableTimeSlots = slotInfo.timeslots || getTimeSlotsForDate(date);
         const isWeekend = slotInfo.isWeekend !== undefined ? slotInfo.isWeekend : isWeekendOrHoliday(date);
+        const staffName = slotInfo.staff; // スタッフ情報を取得
         
-        // 時間スロットのタイトルを更新
+        // 時間スロットのタイトルを更新（スタッフ情報付き）
         const timeSelectionTitle = document.querySelector('.time-selection-title');
         if (timeSelectionTitle) {
             const dayType = isWeekend ? '土日祝' : '平日';
             const businessHours = slotInfo.businessHours || APP_CONFIG.businessHours[isWeekend ? 'weekend' : 'weekday'];
             
-            timeSelectionTitle.textContent = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
+            let titleText = `時間を選択してください（${dayType}: ${businessHours.start}〜${businessHours.end}）`;
+            
+            // スタッフ情報がある場合は追加表示
+            if (staffName) {
+                titleText += ` - 担当：${staffName}`;
+            }
+            
+            timeSelectionTitle.innerHTML = titleText;
+            
+            // スタッフ情報がある場合はスタイリング
+            if (staffName) {
+                timeSelectionTitle.classList.add('with-staff');
+            } else {
+                timeSelectionTitle.classList.remove('with-staff');
+            }
         }
         
         if (availableTimeSlots.length === 0) {
@@ -343,14 +358,18 @@ async function displayTimeSlots(date) {
             } else {
                 timeSlot.textContent += ' ⭕';
                 timeSlot.onclick = () => selectTime(time);
-                timeSlot.title = `${time}を選択`;
+                let tooltipText = `${time}を選択`;
+                if (staffName) {
+                    tooltipText += ` (担当: ${staffName})`;
+                }
+                timeSlot.title = tooltipText;
             }
             
             timeSlots.appendChild(timeSlot);
         });
         
         const dayTypeText = isWeekend ? '土日祝' : '平日';
-        console.log(`${date}の時間スロット表示完了 (${dayTypeText}: ${availableTimeSlots.length}件)`);
+        console.log(`${date}の時間スロット表示完了 (${dayTypeText}: ${availableTimeSlots.length}件, スタッフ: ${staffName || '未設定'})`);
         
     } catch (error) {
         console.error('予約状況の確認に失敗しました:', error);
@@ -559,4 +578,3 @@ function displayCompletionDetails(mainReservation, companionReservations) {
     }
     
     document.getElementById('completion-details').innerHTML = html;
-}
