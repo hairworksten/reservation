@@ -142,9 +142,8 @@ function initCalendar() {
     currentYear = today.getFullYear();
     updateCalendar();
 }
-
-// カレンダーの更新（翌日以降版）
-function updateCalendar() {
+// カレンダーの更新（スタッフ表示付き・修正版）
+async function updateCalendar() {
     const monthYear = document.getElementById('month-year');
     const calendarGrid = document.getElementById('calendar-grid');
     
@@ -165,6 +164,10 @@ function updateCalendar() {
     
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    // 月別スタッフ情報を取得
+    const monthlyStaffData = await getMonthlyStaffInfo(currentYear, currentMonth);
+    console.log('取得したスタッフデータ:', monthlyStaffData);
     
     // 日本時間での今日の日付を取得
     const now = new Date();
@@ -194,10 +197,29 @@ function updateCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'calendar-day';
-        dayCell.textContent = day;
         
         const cellDate = new Date(currentYear, currentMonth, day);
         const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // スタッフ情報を取得（日付キーの両方をチェック）
+        const dayKey1 = String(day); // "1", "2", ...
+        const dayKey2 = String(day).padStart(2, '0'); // "01", "02", ...
+        const staffName = monthlyStaffData[dayKey1] || monthlyStaffData[dayKey2] || null;
+        
+        // 日付番号を表示
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = day;
+        dayCell.appendChild(dayNumber);
+        
+        // スタッフ名を表示（ある場合）
+        if (staffName) {
+            const staffElement = document.createElement('div');
+            staffElement.className = 'calendar-day-staff';
+            staffElement.textContent = staffName;
+            dayCell.appendChild(staffElement);
+            console.log(`${dateString}にスタッフ表示: ${staffName}`);
+        }
         
         // 祝日判定を追加
         const isHoliday = japaneseHolidays.includes(dateString);
@@ -227,9 +249,13 @@ function updateCalendar() {
             const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
             const dayType = isWeekend ? '土日祝' : '平日';
             
-            dayCell.title = `${dateString}を選択 (${dayType}: ${timeInfo})`;
+            let tooltipText = `${dateString}を選択 (${dayType}: ${timeInfo})`;
+            if (staffName) {
+                tooltipText += ` - 担当: ${staffName}`;
+            }
+            dayCell.title = tooltipText;
             
-            console.log(`✅ ${dateString} は予約可能`);
+            console.log(`✅ ${dateString} は予約可能 - スタッフ: ${staffName || '未設定'}`);
         }
         
         calendarGrid.appendChild(dayCell);
