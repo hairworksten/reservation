@@ -402,7 +402,39 @@ async function checkReservationNumberExists(reservationNumber) {
     }
 }
 
-// 予約番号生成（重複チェック付き）
+// 月別スタッフ情報を取得（新機能）
+async function getMonthlyStaffInfo(year, month) {
+    try {
+        const yearMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
+        console.log(`月別スタッフ情報取得開始: ${yearMonth}`);
+        
+        const response = await fetch(`${API_BASE_URL}/staff/month/${yearMonth}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn(`月別スタッフ情報取得失敗: ${response.status}`);
+            return {};
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log(`月別スタッフ情報取得成功: ${yearMonth} -> ${Object.keys(data.staff_data).length}件`);
+            return data.staff_data;
+        } else {
+            console.warn(`月別スタッフ情報取得失敗: ${data.message}`);
+            return {};
+        }
+        
+    } catch (error) {
+        console.error('月別スタッフ情報の取得に失敗しました:', error);
+        return {};
+    }
+}
 async function generateReservationNumber() {
     let reservationNumber;
     let attempts = 0;
