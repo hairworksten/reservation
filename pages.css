@@ -284,13 +284,6 @@
     position: relative;
 }
 
-.time-selection-title.with-staff::before {
-    content: "👨‍💼";
-    font-size: 20px;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
 .time-slots {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
