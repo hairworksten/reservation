@@ -95,7 +95,7 @@ async function loadJapaneseHolidays() {
     }
 }
 
-// 利用可能な時間スロットを取得（翌日以降版・修正版）
+// 利用可能な時間スロットを取得（スタッフ情報付き・修正版）
 async function getAvailableTimeSlots(date) {
     try {
         console.log(`時間スロット取得開始: ${date}`);
@@ -119,7 +119,8 @@ async function getAvailableTimeSlots(date) {
                     success: false,
                     isValidDate: false,
                     message: errorData?.message || '日付が無効です',
-                    timeslots: []
+                    timeslots: [],
+                    staff: null
                 };
             }
             
@@ -129,8 +130,11 @@ async function getAvailableTimeSlots(date) {
         const data = await response.json();
         console.log('時間スロットAPI レスポンス:', data);
         
-        // 翌日以降なので時間フィルタリングは不要
-        return data;
+        // スタッフ情報も含めてレスポンスを返す
+        return {
+            ...data,
+            staff: data.staff || null
+        };
         
     } catch (error) {
         console.error('時間スロットの取得に失敗しました:', error);
@@ -140,8 +144,42 @@ async function getAvailableTimeSlots(date) {
             isWeekend: isWeekendOrHoliday(date),
             isValidDate: isValidReservationDate(date),
             timeslots: getTimeSlotsForDate(date),
-            message: 'サーバーエラーのためフォールバック処理を使用'
+            message: 'サーバーエラーのためフォールバック処理を使用',
+            staff: null
         };
+    }
+}
+
+// スタッフ情報を取得（新機能）
+async function getStaffInfo(date) {
+    try {
+        console.log(`スタッフ情報取得開始: ${date}`);
+        
+        const response = await fetch(`${API_BASE_URL}/staff/${date}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            console.warn(`スタッフ情報取得失敗: ${response.status}`);
+            return null;
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log(`スタッフ情報取得成功: ${date} -> ${data.staff}`);
+            return data.staff;
+        } else {
+            console.warn(`スタッフ情報取得失敗: ${data.message}`);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('スタッフ情報の取得に失敗しました:', error);
+        return null;
     }
 }
 
