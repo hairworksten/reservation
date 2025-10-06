@@ -364,7 +364,8 @@ async function submitReservation() {
             WorkTime: selectedMenu.worktime,
             date: selectedDate,
             mail: document.getElementById('email').value.trim(),
-            states: 0
+            states: 0,
+            today: false
         };
         
         const companionReservations = [];
