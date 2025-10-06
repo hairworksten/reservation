@@ -379,7 +379,8 @@ async function submitReservation() {
                 WorkTime: menus[companion.menu].worktime,
                 date: selectedDate,
                 mail: "同行者",
-                states: 0
+                states: 0,
+                today: false
             });
         }
         
