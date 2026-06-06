@@ -415,59 +415,8 @@ function selectTime(time) {
     document.getElementById('datetime-next-button').classList.add('show');
 }
 
-// 同行者追加（数字のみ電話番号対応）
-function addCompanion() {
-    if (companions.length >= APP_CONFIG.maxCompanions) {
-        alert('同行者は最大1名まで追加できます。');
-        return;
-    }
-    
-    const companionId = `companion-${companions.length}`;
-    companions.push({ id: companionId, menu: '', lastName: '', firstName: '' });
-    
-    const companionsContainer = document.getElementById('companions-container');
-    const companionDiv = document.createElement('div');
-    companionDiv.className = 'companion-section';
-    companionDiv.id = companionId;
-    
-    companionDiv.innerHTML = `
-        <div class="companion-header">
-            <div class="companion-title">同行者 ${companions.length}</div>
-            <button class="remove-companion" onclick="removeCompanion('${companionId}')">削除</button>
-        </div>
-        <div class="form-group">
-            <label class="form-label">メニュー *</label>
-            <select class="form-select" id="${companionId}-menu" required>
-                <option value="">メニューを選択</option>
-                ${Object.keys(menus).map(menu => `<option value="${menu}">${menu} - ¥${menus[menu].fare.toLocaleString()}</option>`).join('')}
-            </select>
-        </div>
-        <div class="form-group">
-            <label class="form-label">お名前 *</label>
-            <input type="text" class="form-input" id="${companionId}-last-name" placeholder="例：田中花子" required>
-        </div>
-        <div class="form-group">
-            <label class="form-label">電話番号 *</label>
-            <input type="number" class="form-input" id="${companionId}-first-name" placeholder="例：08098765432" required pattern="[0-9]*" inputmode="numeric">
-        </div>
-    `;
-    
-    companionsContainer.appendChild(companionDiv);
-}
-
-// 同行者削除
-function removeCompanion(companionId) {
-    const companionIndex = companions.findIndex(c => c.id === companionId);
-    if (companionIndex > -1) {
-        companions.splice(companionIndex, 1);
-        document.getElementById(companionId).remove();
-        
-        companions.forEach((companion, index) => {
-            const companionDiv = document.getElementById(companion.id);
-            companionDiv.querySelector('.companion-title').textContent = `同行者 ${index + 1}`;
-        });
-    }
-}
+// 同行者追加機能は廃止（2026-06 ホットペッパー対応要件にて削除）
+// バックエンド側での同行者予約拒否処理はフェーズ2で対応予定
 
 // 確認画面の詳細表示
 function displayConfirmationDetails() {

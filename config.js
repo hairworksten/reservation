@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://hair-works-api-v2-knn6yth7rq-an.a.run.app/api';
 
 // アプリケーション設定
 const APP_CONFIG = {
-    maxCompanions: 1, // 最大同行者数を1名に変更
+    maxCompanions: 0, // 同行者機能廃止（2026-06 ホットペッパー対応要件）
     minAdvanceBookingDays: 1, // 最小予約日数（1日後=翌日から予約可能に変更）
     maxAdvanceBookingDays: 30, // 最大予約日数（30日後まで予約可能）
     cancelDeadlineHours: 1,
