@@ -246,7 +246,7 @@ async function updateCalendar() {
             
             // 平日・土日祝を示すツールチップを追加
             const isWeekend = isWeekendOrHoliday(dateString);
-            const timeInfo = isWeekend ? '09:00-17:00' : '10:00-18:00';
+            const timeInfo = isWeekend ? '10:00-17:00' : '11:00-18:00';
             const dayType = isWeekend ? '土日祝' : '平日';
             
             let tooltipText = `${dateString}を選択 (${dayType}: ${timeInfo})`;
